@@ -1,11 +1,18 @@
-import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import Components from 'unplugin-vue-components/vite'
 import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 import tailwindcss from '@tailwindcss/vite'
+import path from 'node:path'
+
+const aliases = {
+  '@': path.resolve(__dirname, 'src'),
+  '@views': path.resolve(__dirname, 'src/views'),
+  '@components': path.resolve(__dirname, 'src/components'),
+  '@stores': path.resolve(__dirname, 'src/stores'),
+  '@assets': path.resolve(__dirname, 'src/assets'),
+}
 
 // https://vite.dev/config/
 export default defineConfig(({mode}) => {
@@ -25,9 +32,7 @@ export default defineConfig(({mode}) => {
         sourcemap: true,
       },
       resolve: {
-        alias: {
-          '@': fileURLToPath(new URL('./src', import.meta.url)),
-        },
+        alias: aliases
       },
     }
   } else if (mode === 'staging') {
@@ -46,9 +51,7 @@ export default defineConfig(({mode}) => {
         sourcemap: false,
       },
       resolve: {
-        alias: {
-          '@': fileURLToPath(new URL('./src', import.meta.url)),
-        },
+        alias: aliases
       },
     }
   } else if (mode === 'production') {
@@ -67,9 +70,7 @@ export default defineConfig(({mode}) => {
         sourcemap: false,
       },
       resolve: {
-        alias: {
-          '@': fileURLToPath(new URL('./src', import.meta.url)),
-        },
+        alias: aliases
       },
     }
   }
@@ -91,9 +92,7 @@ export default defineConfig(({mode}) => {
       sourcemap: true,
     },
     resolve: {
-      alias: {
-        '@': fileURLToPath(new URL('./src', import.meta.url)),
-      },
+      alias: aliases
     },
   }
 })

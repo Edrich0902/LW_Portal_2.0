@@ -2,7 +2,7 @@
 
 <template>
   <main>
-    <div>This is the home view managed by TailwindCSS & PrimeVue</div>
+    <div>Create the login page here</div>
     <DatePicker />
   </main>
 </template>
