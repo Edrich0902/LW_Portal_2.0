@@ -10,7 +10,9 @@
       "@views/*": ["src/views/*"],
       "@stores/*": ["src/stores/*"],
       "@components/*": ["src/components/*"],
-      "@assets/*": ["src/assets/*"]
+      "@assets/*": ["src/assets/*"],
+      "@services/*": ["src/services/*"],
+      "@lib/*": ["src/lib/*"]
     }
   }
 }

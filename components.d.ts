@@ -8,9 +8,20 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Button: typeof import('primevue/button')['default']
+    Card: typeof import('primevue/card')['default']
+    ConfirmDialog: typeof import('primevue/confirmdialog')['default']
+    ConfirmPopup: typeof import('primevue/confirmpopup')['default']
     DatePicker: typeof import('primevue/datepicker')['default']
+    Drawer: typeof import('primevue/drawer')['default']
+    FloatLabel: typeof import('primevue/floatlabel')['default']
     InputText: typeof import('primevue/inputtext')['default']
+    LwpDrawer: typeof import('./src/components/drawer/LwpDrawer.vue')['default']
+    Menu: typeof import('primevue/menu')['default']
+    Message: typeof import('primevue/message')['default']
+    Password: typeof import('primevue/password')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Toast: typeof import('primevue/toast')['default']
   }
 }

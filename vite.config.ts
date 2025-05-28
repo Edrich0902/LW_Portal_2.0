@@ -12,6 +12,8 @@ const aliases = {
   '@components': path.resolve(__dirname, 'src/components'),
   '@stores': path.resolve(__dirname, 'src/stores'),
   '@assets': path.resolve(__dirname, 'src/assets'),
+  '@services': path.resolve(__dirname, 'src/services'),
+  '@lib': path.resolve(__dirname, 'src/lib')
 }
 
 // https://vite.dev/config/
