@@ -12,3 +12,8 @@ export type User = {
     created_at?: string;
     updated_at?: string;
 }
+
+export enum UserRole {
+  SUPER_ADMIN = 'super_admin',
+  USER = 'user'
+}

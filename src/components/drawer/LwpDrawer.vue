@@ -66,7 +66,12 @@
 </script>
 
 <template>
-  <Menu
-    :model="items"
-    class="w-56 h-dvh !rounded-xl" />
+  <Menu :model="items" class="w-56 h-dvh !rounded-tr-4xl !rounded-br-4xl">
+    <template #start>
+      <span class="inline-flex items-center gap-1 px-2 py-2">
+        <img class="w-10 h-10 mr-4 rounded-full" src="@assets/images/lwp_icon.png" alt="LWP Logo" />
+        <span class="text-xl font-semibold">LWP Admin</span>
+      </span>
+    </template>
+  </Menu>
 </template>

@@ -7,12 +7,13 @@ import { Form } from '@primevue/forms';
 import type { FormSubmitEvent } from '@primevue/forms/form'
 import { useAuthStore } from '@stores/auth/auth.store.ts'
 import router from '@/router'
+import { Status } from '@/types/status.ts'
 
 const toast = useToast()
 const auth = useAuthStore()
 
 onBeforeMount(async () => {
-  if (auth.authed) await router.replace('/forgot-password')
+  if (auth.authed) await router.replace('/dashboard')
 })
 
 const initialValues = ref({
@@ -67,7 +68,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
             <Message v-if="$form.password?.invalid" severity="error" size="small" variant="simple">{{ $form.password.error.message }}</Message>
           </div>
           <div class="flex flex-col gap-1">
-            <Button label="Sign in" type="submit" />
+            <Button label="Sign in" type="submit" :loading="auth.status === Status.LOADING" />
           </div>
           <RouterLink
             to="/forgot-password"
