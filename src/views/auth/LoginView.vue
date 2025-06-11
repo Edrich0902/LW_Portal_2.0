@@ -34,7 +34,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   if (!valid) toast.add({severity: 'error', summary: 'Some inputs are not valid', life: 2000})
   if (valid) {
     const success = await auth.authenticate(values.email, values.password)
-    if (success) await router.replace('/forgot-password')
+    if (success) await router.replace('/dashboard')
   }
 }
 </script>

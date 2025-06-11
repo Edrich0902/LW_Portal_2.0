@@ -32,6 +32,10 @@ const router = createRouter({
     { path: '/events', name: 'Events', component: ForgotPasswordView, meta: handleMeta(true, true) },
     { path: '/social-media', name: 'SocialMedia', component: ForgotPasswordView, meta: handleMeta(true, true) },
     { path: '/connect-serve', name: 'ConnectServe', component: ForgotPasswordView, meta: handleMeta(true, true) },
+
+    // Profile
+    { path: '/profile', name: 'Profile', component: ForgotPasswordView, meta: handleMeta(true, true) },
+    { path: '/settings', name: 'Settings', component: ForgotPasswordView, meta: handleMeta(true, true) },
   ],
 })
 

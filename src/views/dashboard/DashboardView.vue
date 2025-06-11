@@ -3,11 +3,7 @@ import PageWrapper from '@components/page-wrapper/PageWrapper.vue'
 </script>
 
 <template>
-  <PageWrapper show-toolbar>
-    <div>testing</div>
+  <PageWrapper show-toolbar title="Dashboard">
+    <div>Testing to see if dashboard works</div>
   </PageWrapper>
 </template>
-
-<style scoped>
-
-</style>

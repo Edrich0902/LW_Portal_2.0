@@ -14,20 +14,20 @@
     {
       label: 'General',
       items: [
-        { label: 'Dashboard', url: '/dashboard', icon: 'pi pi-objects-column', },
-        { label: 'Users', url: '/users', icon: 'pi pi-user', },
-        { label: 'Announcements', url: '/announcements', icon: 'pi pi-megaphone', },
+        { label: 'Dashboard', command: () => router.push('/dashboard'), icon: 'pi pi-objects-column', },
+        { label: 'Users', command: () => router.push('/users'), icon: 'pi pi-user', },
+        { label: 'Announcements', command: () => router.push('/announcements'), icon: 'pi pi-megaphone', },
       ]
     },
     {
       label: 'Content Management',
       items: [
-        { label: 'Sermons', url: '/sermons', icon: 'pi pi-book' },
-        { label: 'Vision & Mission', url: '/vision-mission', icon: 'pi pi-lightbulb' },
-        { label: 'Roleplayers', url: '/roleplayers', icon: 'pi pi-users' },
-        { label: 'Events', url: '/events', icon: 'pi pi-calendar' },
-        { label: 'Social Media', url: '/social-media', icon: 'pi pi-hashtag' },
-        { label: 'Connect & Serve', url: '/connect-serve', icon: 'pi pi-users' },
+        { label: 'Sermons', command: () => router.push('/sermons'), icon: 'pi pi-book' },
+        { label: 'Vision & Mission', command: () => router.push('/vision-mission'), icon: 'pi pi-lightbulb' },
+        { label: 'Roleplayers', command: () => router.push('/roleplayers'), icon: 'pi pi-users' },
+        { label: 'Events', command: () => router.push('/events'), icon: 'pi pi-calendar' },
+        { label: 'Social Media', command: () => router.push('/social-media'), icon: 'pi pi-hashtag' },
+        { label: 'Connect & Serve', command: () => router.push('/connect-serve'), icon: 'pi pi-users' },
       ]
     },
     {

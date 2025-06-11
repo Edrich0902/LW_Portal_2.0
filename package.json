@@ -17,6 +17,8 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@cloudinary/url-gen": "^1.21.0",
+    "@cloudinary/vue": "^1.13.3",
     "@primeuix/themes": "^1.0.3",
     "@primevue/forms": "^4.3.4",
     "@supabase/supabase-js": "^2.49.8",
