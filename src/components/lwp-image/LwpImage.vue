@@ -15,7 +15,7 @@
     width?: number,
   }>()
 
-  const image = cloudinary.image(publicId)
+  const image = cloudinary.image(publicId ?? 'samples/cloudinary-icon')
   const resizer = Resize.fit()
 
   if (height) resizer.height(height)

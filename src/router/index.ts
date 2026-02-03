@@ -4,6 +4,7 @@ import ForgotPasswordView from '@views/auth/ForgotPasswordView.vue'
 import DashboardView from '@views/dashboard/DashboardView.vue'
 import { useAuthStore } from '@stores/auth/auth.store.ts'
 import { useToast } from 'primevue/usetoast'
+import UsersView from '@views/users/UsersView.vue'
 
 const handleMeta = (showMenu: boolean, authed: boolean) => {
   return {
@@ -22,7 +23,7 @@ const router = createRouter({
 
     // General
     { path: '/dashboard', name: 'Dashboard', component: DashboardView, meta: handleMeta(true, true) },
-    { path: '/users', name: 'Users', component: ForgotPasswordView, meta: handleMeta(true, true) },
+    { path: '/users', name: 'Users', component: UsersView, meta: handleMeta(true, true) },
     { path: '/announcements', name: 'Announcements', component: ForgotPasswordView, meta: handleMeta(true, true) },
 
     // Content Management

@@ -11,8 +11,8 @@ const route = useRoute()
   <!-- CONFIRMATION POPUP PROVIDER -->
   <ConfirmPopup />
 
-  <div class="flex flex-row items-stretch gap-x-2">
+  <div class="flex flex-row items-stretch gap-x-2 h-screen">
     <LwpDrawer v-if="route.meta.showMenu"/>
-    <RouterView class="overflow-auto h-dvh"/>
+    <RouterView class="overflow-auto flex flex-col flex-1"/>
   </div>
 </template>
