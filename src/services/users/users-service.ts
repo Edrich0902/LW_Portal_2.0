@@ -9,7 +9,7 @@ export const sbQueryUsers = async (pagination: LwpPagination, sort: LwpSort, fil
   const query = supabase.from('user_profile_view').select('*', {count: "exact"});
 
   if (filter) {
-    if (filter.searchText.trim()) query.textSearch('first_name', formatSearchText(filter.searchText));
+    if (filter.searchText.trim()) query.textSearch('first_name', formatSearchText(filter.searchText), { type: 'websearch', config: 'english' });
   }
 
   const { data, error, count } = await query.range(pagination.from, pagination.to)

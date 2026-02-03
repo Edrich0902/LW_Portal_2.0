@@ -74,6 +74,7 @@ watch(searchText, (value) => {
       :sortOrder="userStore.sort.order === 'asc' ? 1 : -1"
       @page="onPage"
       @sort="onSort"
+      data-key="id"
       lazy
       paginator
       striped-rows
@@ -110,7 +111,7 @@ watch(searchText, (value) => {
           </Avatar>
         </template>
         <template
-          v-else-if="col.field === 'is_baptised' || col.field === 'is_member'"
+          v-else-if="col.field === 'is_baptized' || col.field === 'is_member'"
           #body="slotProps"
         >
           <i v-if="slotProps.data[col.field] === true" class="pi pi-check" style="color: green"></i>

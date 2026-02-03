@@ -31,7 +31,7 @@ export const useUsersStore = defineStore('usersStore', () => {
     {header: 'Last Name', field: 'last_name'},
     {header: 'Email', field: 'email'},
     {header: 'Role', field: 'role'},
-    {header: 'Baptised', field: 'is_baptised'},
+    {header: 'Baptized', field: 'is_baptized'},
     {header: 'Member', field: 'is_member'},
     {header: 'Address', field: 'address'},
     {header: 'Created At', field: 'created_at'},
@@ -68,6 +68,13 @@ export const useUsersStore = defineStore('usersStore', () => {
 
   const filterUsers = async (updatedFilter: LwpFilter) => {
     filter.value = updatedFilter;
+    pagination.value = {
+      from: 0,
+      to: 19,
+      limit: 20,
+      count: 0,
+      page: 0,
+    }
     await queryUsers()
   }
 
