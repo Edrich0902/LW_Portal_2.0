@@ -58,7 +58,7 @@ watch(searchText, (value) => {
 </script>
 
 <template>
-  <PageWrapper show-toolbar title="Sermons" class="flex flex-col">
+  <PageWrapper show-toolbar title="Roleplayers" class="flex flex-col">
     <template #search>
       <IconField>
         <InputIcon class="pi pi-search" />
