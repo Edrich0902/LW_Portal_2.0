@@ -78,5 +78,17 @@ export const useUsersStore = defineStore('usersStore', () => {
     await queryUsers()
   }
 
-  return { status, data, filter, sort, pagination, tableColumns, initUsers, queryUsers, pageUsers, sortUsers, filterUsers }
+  return {
+    status,
+    data,
+    filter,
+    sort,
+    pagination,
+    tableColumns,
+    initUsers,
+    queryUsers,
+    pageUsers,
+    sortUsers,
+    filterUsers
+  }
 })
