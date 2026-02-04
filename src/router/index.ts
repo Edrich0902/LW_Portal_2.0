@@ -8,6 +8,8 @@ import ForgotPasswordView from '@views/auth/ForgotPasswordView.vue'
 import DashboardView from '@views/dashboard/DashboardView.vue'
 import UsersView from '@views/users/UsersView.vue'
 import AnnouncementsView from '@views/announcements/AnnouncementsView.vue'
+import SermonsView from '@views/sermons/SermonsView.vue'
+import RoleplayersView from '@views/roleplayers/RoleplayersView.vue'
 
 const handleMeta = (showMenu: boolean, authed: boolean) => {
   return {
@@ -43,7 +45,7 @@ const router = createRouter({
     {
       path: '/sermons',
       name: 'Sermons',
-      component: ForgotPasswordView,
+      component: SermonsView,
       meta: handleMeta(true, true),
     },
     {
@@ -55,7 +57,7 @@ const router = createRouter({
     {
       path: '/roleplayers',
       name: 'Roleplayers',
-      component: ForgotPasswordView,
+      component: RoleplayersView,
       meta: handleMeta(true, true),
     },
     {
