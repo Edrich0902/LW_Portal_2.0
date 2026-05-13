@@ -82,20 +82,6 @@ const router = createRouter({
       component: ConnectServeView,
       meta: handleMeta(true, true),
     },
-
-    // Profile
-    {
-      path: '/profile',
-      name: 'Profile',
-      component: ForgotPasswordView, // TODO: implement
-      meta: handleMeta(true, true),
-    },
-    {
-      path: '/settings',
-      name: 'Settings',
-      component: ForgotPasswordView, // TODO: implement
-      meta: handleMeta(true, true),
-    },
   ],
 })
 

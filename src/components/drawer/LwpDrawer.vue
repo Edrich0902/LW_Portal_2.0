@@ -14,20 +14,20 @@
     {
       label: 'General',
       items: [
-        { label: 'Dashboard', command: () => router.push('/dashboard'), icon: 'pi pi-objects-column', },
-        { label: 'Users', command: () => router.push('/users'), icon: 'pi pi-user', },
-        { label: 'Announcements', command: () => router.push('/announcements'), icon: 'pi pi-megaphone', },
+        { label: 'Dashboard', to: '/dashboard', icon: 'pi pi-objects-column', },
+        { label: 'Users', to: '/users', icon: 'pi pi-user', },
+        { label: 'Announcements', to: '/announcements', icon: 'pi pi-megaphone', },
       ]
     },
     {
       label: 'Content Management',
       items: [
-        { label: 'Sermons', command: () => router.push('/sermons'), icon: 'pi pi-book' },
-        { label: 'Vision & Mission', command: () => router.push('/vision-mission'), icon: 'pi pi-lightbulb' },
-        { label: 'Roleplayers', command: () => router.push('/roleplayers'), icon: 'pi pi-users' },
-        { label: 'Events', command: () => router.push('/events'), icon: 'pi pi-calendar' },
-        { label: 'Social Media', command: () => router.push('/social-media'), icon: 'pi pi-hashtag' },
-        { label: 'Connect & Serve', command: () => router.push('/connect-serve'), icon: 'pi pi-users' },
+        { label: 'Sermons', to: '/sermons', icon: 'pi pi-book' },
+        { label: 'Vision & Mission', to: '/vision-mission', icon: 'pi pi-lightbulb' },
+        { label: 'Roleplayers', to: '/roleplayers', icon: 'pi pi-users' },
+        { label: 'Events', to: '/events', icon: 'pi pi-calendar' },
+        { label: 'Social Media', to: '/social-media', icon: 'pi pi-hashtag' },
+        { label: 'Connect & Serve', to: '/connect-serve', icon: 'pi pi-users' },
       ]
     },
     {
@@ -72,6 +72,18 @@
         <img class="w-10 h-10 mr-4 rounded-full" src="@assets/images/lwp_icon.png" alt="LWP Logo" />
         <span class="text-xl font-semibold">LWP Admin</span>
       </span>
+    </template>
+    <template #item="{ item, props }">
+      <router-link v-if="item.to" v-slot="{ href, navigate, isActive, isExactActive }" :to="item.to" custom>
+        <a v-ripple :href="href" v-bind="props.action" @click="navigate" :class="{ '!bg-primary !text-primary-contrast': isExactActive }">
+          <span :class="item.icon" />
+          <span class="ml-2">{{ item.label }}</span>
+        </a>
+      </router-link>
+      <a v-else v-ripple :href="item.url" :target="item.target" v-bind="props.action">
+        <span :class="item.icon" />
+        <span class="ml-2">{{ item.label }}</span>
+      </a>
     </template>
   </Menu>
 </template>

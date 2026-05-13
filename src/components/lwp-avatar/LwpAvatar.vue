@@ -22,16 +22,6 @@ const items = ref([
     label: 'Options',
     items: [
       {
-        label: 'My Profile',
-        icon: 'pi pi-user',
-        command: async () => await router.push('/profile'),
-      },
-      {
-        label: 'Settings',
-        icon: 'pi pi-cog',
-        command: async () => await router.push('/settings'),
-      },
-      {
         label: 'Logout',
         icon: 'pi pi-sign-out',
         command: async (event: MenuItemCommandEvent) => await handleSignOut(event),
