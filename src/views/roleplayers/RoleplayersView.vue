@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import { onBeforeMount, ref, watch } from 'vue'
 import { debounce } from 'lodash'
-import type { DataTablePageEvent, DataTableSortEvent } from 'primevue'
+import type { DataTablePageEvent, DataTableRowClickEvent, DataTableSortEvent } from 'primevue'
 import { Status } from '@/types/status.ts'
 import moment from 'moment'
 import PageWrapper from '@components/page-wrapper/PageWrapper.vue'
 import { useRoleplayersStore } from '@stores/roleplayers/roleplayers.store.ts'
 import LwpImage from '@components/lwp-image/LwpImage.vue'
+import RoleplayerModal from '@views/roleplayers/RoleplayerModal.vue'
+import type { Roleplayer } from '@/types/roleplayer/roleplayer.ts'
 
 const roleplayersStore = useRoleplayersStore()
+
+const dt = ref()
+const showModal = ref<boolean>(false)
+const selectedItem = ref<Roleplayer>()
 
 onBeforeMount(async () => {
   await roleplayersStore.initRoleplayers()
@@ -48,8 +54,26 @@ const onSort = async (event: DataTableSortEvent) => {
   })
 }
 
+const onRowClick = (event: DataTableRowClickEvent) => {
+  selectedItem.value = event.data as Roleplayer
+  showModal.value = true
+}
+
+const onAdd = () => {
+  selectedItem.value = undefined
+  showModal.value = true
+}
+
 const onRefresh = async () => {
   await roleplayersStore.initRoleplayers()
+}
+
+const exportCSV = () => {
+  dt.value.exportCSV()
+}
+
+const handleModalClose = (refresh: boolean = false) => {
+  if (refresh) onRefresh()
 }
 
 watch(searchText, (value) => {
@@ -66,6 +90,7 @@ watch(searchText, (value) => {
       </IconField>
     </template>
     <DataTable
+      ref="dt"
       :loading="roleplayersStore.status === Status.LOADING"
       :value="roleplayersStore.data"
       :rows="roleplayersStore.pagination.limit"
@@ -75,17 +100,30 @@ watch(searchText, (value) => {
       :sortOrder="roleplayersStore.sort.order === 'asc' ? 1 : -1"
       @page="onPage"
       @sort="onSort"
+      @row-click="onRowClick"
       data-key="id"
       lazy
       paginator
       striped-rows
       scrollable
       removableSort
+      row-hover
+      :row-class="() => 'cursor-pointer'"
       scroll-height="flex"
       class="flex-1"
     >
       <template #header>
-        <div class="flex flex-row items-center justify-end">
+        <div class="flex flex-row items-center justify-end gap-2">
+          <Button @click="onAdd" icon="pi pi-plus" label="Add" size="small" rounded raised />
+          <Button
+            @click="exportCSV"
+            icon="pi pi-download"
+            label="Export"
+            size="small"
+            severity="secondary"
+            rounded
+            raised
+          />
           <Button @click="onRefresh" icon="pi pi-refresh" size="small" rounded raised />
         </div>
       </template>
@@ -123,5 +161,12 @@ watch(searchText, (value) => {
         </template>
       </Column>
     </DataTable>
+
+    <RoleplayerModal
+      :key="JSON.stringify(selectedItem)"
+      v-model:visible="showModal"
+      :roleplayer="selectedItem"
+      @close="handleModalClose"
+    />
   </PageWrapper>
 </template>

@@ -10,6 +10,8 @@ import { debounce } from 'lodash'
 
 const userStore = useUsersStore()
 
+const dt = ref();
+
 onBeforeMount(async () => {
   await userStore.initUsers()
 })
@@ -52,6 +54,10 @@ const onRefresh = async () => {
   await userStore.initUsers()
 }
 
+const exportCSV = () => {
+  dt.value.exportCSV()
+}
+
 watch(searchText, (value) => {
   onSearch(value)
 })
@@ -65,6 +71,7 @@ watch(searchText, (value) => {
       </IconField>
     </template>
     <DataTable
+      ref="dt"
       :loading="userStore.status === Status.LOADING"
       :value="userStore.data"
       :rows="userStore.pagination.limit"
@@ -84,7 +91,16 @@ watch(searchText, (value) => {
       class="flex-1"
     >
       <template #header>
-        <div class="flex flex-row items-center justify-end">
+        <div class="flex flex-row items-center justify-end gap-2">
+          <Button
+            @click="exportCSV"
+            icon="pi pi-download"
+            label="Export"
+            size="small"
+            severity="secondary"
+            rounded
+            raised
+          />
           <Button @click="onRefresh" icon="pi pi-refresh" size="small" rounded raised />
         </div>
       </template>

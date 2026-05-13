@@ -6,11 +6,17 @@ import type { LwpFilter } from '@/types/lwpFilter.ts'
 import type { LwpPagination } from '@/types/lwpPagination.ts'
 import type { LwpSort } from '@/types/lwpSort.ts'
 import type { Roleplayer } from '@/types/roleplayer/roleplayer.ts'
-import { sbQueryRoleplayers } from '@services/roleplayers/roleplayers-service.ts'
+import {
+  sbCreateRoleplayer,
+  sbDeleteRoleplayer,
+  sbQueryRoleplayers,
+  sbUpdateRoleplayer,
+} from '@services/roleplayers/roleplayers-service.ts'
 
 export const useRoleplayersStore = defineStore('roleplayersStore', () => {
   const toast = useToast()
   const status = ref<Status>(Status.UNINITIALIZED)
+  const modalStatus = ref<Status>(Status.OK)
   const data = ref<Roleplayer[]>([])
   const filter = ref<LwpFilter>({
     searchText: '',
@@ -53,6 +59,45 @@ export const useRoleplayersStore = defineStore('roleplayersStore', () => {
     status.value = Status.OK
   }
 
+  const createRoleplayer = async (roleplayer: Roleplayer) => {
+    modalStatus.value = Status.LOADING
+    const response = await sbCreateRoleplayer(roleplayer)
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Error Creating Roleplayer', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK
+      toast.add({ severity: 'success', summary: 'Roleplayer Created', life: 2000 })
+    }
+  }
+
+  const updateRoleplayer = async (roleplayer: Roleplayer) => {
+    modalStatus.value = Status.LOADING
+    const response = await sbUpdateRoleplayer(roleplayer)
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Error Updating Roleplayer', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK
+      toast.add({ severity: 'success', summary: 'Roleplayer Updated', life: 2000 })
+    }
+  }
+
+  const deleteRoleplayer = async (roleplayer: Roleplayer) => {
+    modalStatus.value = Status.LOADING
+    const response = await sbDeleteRoleplayer(roleplayer)
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Error Deleting Roleplayer', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK
+      toast.add({ severity: 'success', summary: 'Roleplayer Deleted', life: 2000 })
+    }
+  }
+
   const pageRoleplayers = async (updatedPagination: LwpPagination) => {
     pagination.value = updatedPagination
     await queryRoleplayers()
@@ -77,6 +122,7 @@ export const useRoleplayersStore = defineStore('roleplayersStore', () => {
 
   return {
     status,
+    modalStatus,
     data,
     filter,
     sort,
@@ -84,6 +130,9 @@ export const useRoleplayersStore = defineStore('roleplayersStore', () => {
     tableColumns,
     initRoleplayers,
     queryRoleplayers,
+    createRoleplayer,
+    updateRoleplayer,
+    deleteRoleplayer,
     pageRoleplayers,
     sortRoleplayers,
     filterRoleplayers,

@@ -82,6 +82,29 @@ export const sbUpdateAnnouncement = async (
   }
 }
 
+export const sbDeleteAnnouncement = async (
+  announcement: Announcement,
+): Promise<SingleSupabaseResponse<Announcement>> => {
+  const { data, error } = await supabase
+    .from('announcements')
+    .delete()
+    .eq('id', announcement.id)
+    .single<Announcement>()
+
+  if (error) {
+    console.error(error.code, error.message)
+    return {
+      data: null,
+      error: error,
+    }
+  }
+
+  return {
+    data: data,
+    error: undefined,
+  }
+}
+
 const formatSearchText = (searchText: string, and = false) => {
   const split = searchText.split(' ')
   const quotedParts = split.map((part) => `'${part.trim()}'`)

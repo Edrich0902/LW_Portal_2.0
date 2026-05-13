@@ -6,11 +6,17 @@ import type { LwpFilter } from '@/types/lwpFilter.ts'
 import type { LwpPagination } from '@/types/lwpPagination.ts'
 import type { LwpSort } from '@/types/lwpSort.ts'
 import type { Group } from '@/types/group/group.ts'
-import { sbQueryConnectServeGroups } from '@services/connect-serve/connect-serve-service.ts'
+import {
+  sbCreateConnectServeGroup,
+  sbDeleteConnectServeGroup,
+  sbQueryConnectServeGroups,
+  sbUpdateConnectServeGroup,
+} from '@services/connect-serve/connect-serve-service.ts'
 
 export const useConnectServeStore = defineStore('connectServeStore', () => {
   const toast = useToast()
   const status = ref<Status>(Status.UNINITIALIZED)
+  const modalStatus = ref<Status>(Status.OK)
   const data = ref<Group[]>([])
   const filter = ref<LwpFilter>({
     searchText: '',
@@ -56,6 +62,45 @@ export const useConnectServeStore = defineStore('connectServeStore', () => {
     status.value = Status.OK
   }
 
+  const createConnectServeGroup = async (group: Group) => {
+    modalStatus.value = Status.LOADING
+    const response = await sbCreateConnectServeGroup(group)
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Error Creating Group', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK
+      toast.add({ severity: 'success', summary: 'Group Created', life: 2000 })
+    }
+  }
+
+  const updateConnectServeGroup = async (group: Group) => {
+    modalStatus.value = Status.LOADING
+    const response = await sbUpdateConnectServeGroup(group)
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Error Updating Group', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK
+      toast.add({ severity: 'success', summary: 'Group Updated', life: 2000 })
+    }
+  }
+
+  const deleteConnectServeGroup = async (group: Group) => {
+    modalStatus.value = Status.LOADING
+    const response = await sbDeleteConnectServeGroup(group)
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Error Deleting Group', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK
+      toast.add({ severity: 'success', summary: 'Group Deleted', life: 2000 })
+    }
+  }
+
   const pageConnectServeGroups = async (updatedPagination: LwpPagination) => {
     pagination.value = updatedPagination
     await queryConnectServeGroups()
@@ -80,6 +125,7 @@ export const useConnectServeStore = defineStore('connectServeStore', () => {
 
   return {
     status,
+    modalStatus,
     data,
     filter,
     sort,
@@ -87,6 +133,9 @@ export const useConnectServeStore = defineStore('connectServeStore', () => {
     tableColumns,
     initConnectServeGroups,
     queryConnectServeGroups,
+    createConnectServeGroup,
+    updateConnectServeGroup,
+    deleteConnectServeGroup,
     pageConnectServeGroups,
     sortConnectServeGroups,
     filterConnectServeGroups,

@@ -63,7 +63,7 @@ onMounted(() => {
         const url = result.info.secure_url
 
         emit('update:modelValue', url)
-        emit('uploaded', url)
+        emit('uploaded', result.info)
       }
     },
   )

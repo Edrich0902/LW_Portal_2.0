@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { onBeforeMount, ref, watch } from 'vue'
 import { debounce } from 'lodash'
-import type { DataTablePageEvent, DataTableSortEvent } from 'primevue'
+import type { DataTablePageEvent, DataTableRowClickEvent, DataTableSortEvent } from 'primevue'
 import { Status } from '@/types/status.ts'
 import moment from 'moment'
 import PageWrapper from '@components/page-wrapper/PageWrapper.vue'
 import LwpImage from '@components/lwp-image/LwpImage.vue'
 import { useConnectServeStore } from '@stores/connect-serve/connect-serve.store.ts'
-import LwpImageUploader from '@components/lwp-image/LwpImageUploader.vue'
+import ConnectServeModal from '@views/connect-serve/ConnectServeModal.vue'
+import type { Group } from '@/types/group/group.ts'
 
 const connectServeStore = useConnectServeStore()
+
+const dt = ref()
+const showModal = ref<boolean>(false)
+const selectedItem = ref<Group>()
 
 onBeforeMount(async () => {
   await connectServeStore.initConnectServeGroups()
@@ -49,8 +54,26 @@ const onSort = async (event: DataTableSortEvent) => {
   })
 }
 
+const onRowClick = (event: DataTableRowClickEvent) => {
+  selectedItem.value = event.data as Group
+  showModal.value = true
+}
+
+const onAdd = () => {
+  selectedItem.value = undefined
+  showModal.value = true
+}
+
 const onRefresh = async () => {
   await connectServeStore.initConnectServeGroups()
+}
+
+const exportCSV = () => {
+  dt.value.exportCSV()
+}
+
+const handleModalClose = (refresh: boolean = false) => {
+  if (refresh) onRefresh()
 }
 
 watch(searchText, (value) => {
@@ -67,6 +90,7 @@ watch(searchText, (value) => {
       </IconField>
     </template>
     <DataTable
+      ref="dt"
       :loading="connectServeStore.status === Status.LOADING"
       :value="connectServeStore.data"
       :rows="connectServeStore.pagination.limit"
@@ -76,17 +100,30 @@ watch(searchText, (value) => {
       :sortOrder="connectServeStore.sort.order === 'asc' ? 1 : -1"
       @page="onPage"
       @sort="onSort"
+      @row-click="onRowClick"
       data-key="id"
       lazy
       paginator
       striped-rows
       scrollable
       removableSort
+      row-hover
+      :row-class="() => 'cursor-pointer'"
       scroll-height="flex"
       class="flex-1"
     >
       <template #header>
-        <div class="flex flex-row items-center justify-end">
+        <div class="flex flex-row items-center justify-end gap-2">
+          <Button @click="onAdd" icon="pi pi-plus" label="Add" size="small" rounded raised />
+          <Button
+            @click="exportCSV"
+            icon="pi pi-download"
+            label="Export"
+            size="small"
+            severity="secondary"
+            rounded
+            raised
+          />
           <Button @click="onRefresh" icon="pi pi-refresh" size="small" rounded raised />
         </div>
       </template>
@@ -124,5 +161,12 @@ watch(searchText, (value) => {
         </template>
       </Column>
     </DataTable>
+
+    <ConnectServeModal
+      :key="JSON.stringify(selectedItem)"
+      v-model:visible="showModal"
+      :group="selectedItem"
+      @close="handleModalClose"
+    />
   </PageWrapper>
 </template>

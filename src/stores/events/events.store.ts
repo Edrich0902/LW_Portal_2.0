@@ -6,11 +6,17 @@ import type { Event } from '@/types/event/event.ts'
 import type { LwpFilter } from '@/types/lwpFilter.ts'
 import type { LwpPagination } from '@/types/lwpPagination.ts'
 import type { LwpSort } from '@/types/lwpSort.ts'
-import { sbQueryEvents } from '@services/events/events-service.ts'
+import {
+  sbCreateEvent,
+  sbDeleteEvent,
+  sbQueryEvents,
+  sbUpdateEvent,
+} from '@services/events/events-service.ts'
 
 export const useEventsStore = defineStore('eventsStore', () => {
   const toast = useToast();
   const status = ref<Status>(Status.UNINITIALIZED);
+  const modalStatus = ref<Status>(Status.OK);
   const data = ref<Event[]>([]);
   const filter = ref<LwpFilter>({
     searchText: '',
@@ -57,6 +63,45 @@ export const useEventsStore = defineStore('eventsStore', () => {
     status.value = Status.OK
   }
 
+  const createEvent = async (event: Event) => {
+    modalStatus.value = Status.LOADING
+    const response = await sbCreateEvent(event)
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Error Creating Event', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK
+      toast.add({ severity: 'success', summary: 'Event Created', life: 2000 })
+    }
+  }
+
+  const updateEvent = async (event: Event) => {
+    modalStatus.value = Status.LOADING
+    const response = await sbUpdateEvent(event)
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Error Updating Event', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK
+      toast.add({ severity: 'success', summary: 'Event Updated', life: 2000 })
+    }
+  }
+
+  const deleteEvent = async (event: Event) => {
+    modalStatus.value = Status.LOADING
+    const response = await sbDeleteEvent(event)
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Error Deleting Event', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK
+      toast.add({ severity: 'success', summary: 'Event Deleted', life: 2000 })
+    }
+  }
+
   const pageEvents = async (updatedPagination: LwpPagination) => {
     pagination.value = updatedPagination
     await queryEvents()
@@ -81,6 +126,7 @@ export const useEventsStore = defineStore('eventsStore', () => {
 
   return {
     status,
+    modalStatus,
     data,
     filter,
     sort,
@@ -88,6 +134,9 @@ export const useEventsStore = defineStore('eventsStore', () => {
     tableColumns,
     initEvents,
     queryEvents,
+    createEvent,
+    updateEvent,
+    deleteEvent,
     pageEvents,
     sortEvents,
     filterEvents

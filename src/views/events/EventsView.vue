@@ -2,13 +2,19 @@
 import { useEventsStore } from '@stores/events/events.store.ts'
 import { onBeforeMount, ref, watch } from 'vue'
 import { debounce } from 'lodash'
-import type { DataTablePageEvent, DataTableSortEvent } from 'primevue'
+import type { DataTablePageEvent, DataTableRowClickEvent, DataTableSortEvent } from 'primevue'
 import { Status } from '@/types/status.ts'
 import moment from 'moment'
 import PageWrapper from '@components/page-wrapper/PageWrapper.vue'
 import LwpImage from '@components/lwp-image/LwpImage.vue'
+import EventsModal from '@views/events/EventsModal.vue'
+import type { Event } from '@/types/event/event.ts'
 
 const eventsStore = useEventsStore()
+
+const dt = ref()
+const showModal = ref<boolean>(false)
+const selectedItem = ref<Event>()
 
 onBeforeMount(async () => {
   await eventsStore.initEvents()
@@ -48,8 +54,26 @@ const onSort = async (event: DataTableSortEvent) => {
   })
 }
 
+const onRowClick = (event: DataTableRowClickEvent) => {
+  selectedItem.value = event.data as Event
+  showModal.value = true
+}
+
+const onAdd = () => {
+  selectedItem.value = undefined
+  showModal.value = true
+}
+
 const onRefresh = async () => {
   await eventsStore.initEvents()
+}
+
+const exportCSV = () => {
+  dt.value.exportCSV()
+}
+
+const handleModalClose = (refresh: boolean = false) => {
+  if (refresh) onRefresh()
 }
 
 watch(searchText, (value) => {
@@ -66,6 +90,7 @@ watch(searchText, (value) => {
       </IconField>
     </template>
     <DataTable
+      ref="dt"
       :loading="eventsStore.status === Status.LOADING"
       :value="eventsStore.data"
       :rows="eventsStore.pagination.limit"
@@ -75,17 +100,30 @@ watch(searchText, (value) => {
       :sortOrder="eventsStore.sort.order === 'asc' ? 1 : -1"
       @page="onPage"
       @sort="onSort"
+      @row-click="onRowClick"
       data-key="id"
       lazy
       paginator
       striped-rows
       scrollable
       removableSort
+      row-hover
+      :row-class="() => 'cursor-pointer'"
       scroll-height="flex"
       class="flex-1"
     >
       <template #header>
-        <div class="flex flex-row items-center justify-end">
+        <div class="flex flex-row items-center justify-end gap-2">
+          <Button @click="onAdd" icon="pi pi-plus" label="Add" size="small" rounded raised />
+          <Button
+            @click="exportCSV"
+            icon="pi pi-download"
+            label="Export"
+            size="small"
+            severity="secondary"
+            rounded
+            raised
+          />
           <Button @click="onRefresh" icon="pi pi-refresh" size="small" rounded raised />
         </div>
       </template>
@@ -120,5 +158,12 @@ watch(searchText, (value) => {
         </template>
       </Column>
     </DataTable>
+
+    <EventsModal
+      :key="JSON.stringify(selectedItem)"
+      v-model:visible="showModal"
+      :eventItem="selectedItem"
+      @close="handleModalClose"
+    />
   </PageWrapper>
 </template>

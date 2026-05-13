@@ -1,37 +1,38 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, ref } from 'vue'
-import type { Sermon } from '@/types/sermon/sermon.ts'
 import type { FormSubmitEvent } from '@primevue/forms/form'
 import { useToast } from 'primevue/usetoast'
 import { yupResolver } from '@primeuix/forms/resolvers/yup'
 import * as yup from 'yup'
 import { Status } from '@/types/status.ts'
-import { useSermonsStore } from '@stores/sermons/sermons.store.ts'
 import { useConfirm } from 'primevue'
+import { type SocialMedia, SocialMediaType } from '@/types/social-media/social-media.ts'
+import { useSocialMediaStore } from '@stores/social-media/social-media.store.ts'
 
 const toast = useToast()
 const confirm = useConfirm()
-const store = useSermonsStore()
+const store = useSocialMediaStore()
 
 const props = withDefaults(
   defineProps<{
     visible: boolean
-    sermon?: Sermon
+    socialMediaItem?: SocialMedia
   }>(),
   {
-    sermon: undefined,
+    socialMediaItem: undefined,
   },
 )
 
-let initialValues: Partial<Sermon> = {}
+let initialValues: Partial<SocialMedia> = {}
 const isReady = ref(false)
+const bannerPublicId = ref<string | undefined>(props.socialMediaItem?.banner_public_id)
+const bannerUrl = ref<string | undefined>(props.socialMediaItem?.banner_url)
 
 onBeforeMount(() => {
   initialValues = {
-    title: props.sermon?.title ?? '',
-    link: props.sermon?.link ?? '',
-    description: props.sermon?.description ?? undefined,
-    pastor: props.sermon?.pastor ?? '',
+    title: props.socialMediaItem?.title ?? '',
+    link: props.socialMediaItem?.link ?? '',
+    type: props.socialMediaItem?.type ?? SocialMediaType.INSTAGRAM,
   }
 
   isReady.value = true
@@ -41,9 +42,8 @@ const resolver = ref(
   yupResolver(
     yup.object().shape({
       title: yup.string().required('Title is required'),
-      link: yup.string().required('Link is required'),
-      description: yup.string().required('Description is required'),
-      pastor: yup.string().required('Pastor is required'),
+      link: yup.string().url('Must be a valid URL').required('Link is required'),
+      type: yup.string().required('Type is required'),
     }),
   ),
 )
@@ -59,24 +59,35 @@ const model = computed({
 })
 
 const modalTitle = computed(() => {
-  return props.sermon && props.sermon.id ? 'Update Sermon' : 'Create Sermon'
+  return props.socialMediaItem && props.socialMediaItem.id ? 'Update Social Media' : 'Create Social Media'
 })
 
 const isUpdating = computed(() => {
-  return props.sermon && props.sermon.id
+  return props.socialMediaItem && props.socialMediaItem.id
 })
 
 const closeAndResetModal = (shouldRefresh: boolean = false) => {
   model.value = false
-  emit("close", shouldRefresh)
+  emit('close', shouldRefresh)
 }
 
-const onFormSubmit = async ({ valid, values }: FormSubmitEvent<Sermon>) => {
-  if (!valid) toast.add({ severity: 'error', summary: 'Some inputs are invalid', life: 2000 })
+const onFormSubmit = async ({ valid, values }: FormSubmitEvent<SocialMedia>) => {
+  if (!valid) {
+    toast.add({ severity: 'error', summary: 'Some inputs are invalid', life: 2000 })
+    return
+  }
+
+  const payload = {
+    ...props.socialMediaItem,
+    ...values,
+    banner_public_id: bannerPublicId.value,
+    banner_url: bannerUrl.value,
+  }
+
   if (isUpdating.value) {
-    await store.updateSermon({ ...props.sermon, ...values })
+    await store.updateSocialMedia(payload as SocialMedia)
   } else {
-    await store.createSermon(values)
+    await store.createSocialMedia(payload as SocialMedia)
   }
 
   if (store.modalStatus === Status.OK) {
@@ -84,33 +95,52 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent<Sermon>) => {
   }
 }
 
+const onUpload = (info: any) => {
+  bannerPublicId.value = info.public_id
+  bannerUrl.value = info.secure_url
+  toast.add({ severity: 'success', summary: 'Image uploaded', life: 2000 })
+}
+
 const attemptDelete = (event: MouseEvent) => {
   confirm.require({
     target: event.currentTarget as HTMLElement,
-    message: "Are you sure you want to delete this Sermon?",
+    message: 'Are you sure you want to delete this Social Media?',
     icon: 'pi pi-info-circle',
     rejectProps: {
-      label: "Cancel",
-      severity: "secondary",
+      label: 'Cancel',
+      severity: 'secondary',
       outlined: true,
     },
     acceptProps: {
-      label: "Delete",
-      severity: "danger",
+      label: 'Delete',
+      severity: 'danger',
     },
     accept: async () => {
-      await store.deleteSermon(props.sermon!)
+      await store.deleteSocialMedia(props.socialMediaItem!)
 
       if (store.modalStatus === Status.OK) {
         closeAndResetModal(true)
       }
-    }
+    },
   })
 }
+
+const socialMediaTypes = ref(Object.values(SocialMediaType).map(v => ({ label: v, value: v })))
 </script>
 
 <template>
   <Dialog v-model:visible="model" modal :header="modalTitle" class="w-1/4">
+    <div class="flex flex-col items-center gap-3 mb-4">
+      <div class="w-full h-40 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+        <LwpImage
+          :public-id="bannerPublicId"
+          :height="300"
+          class-name="object-cover w-full h-full"
+        />
+      </div>
+      <LwpImageUploader label="Upload Banner" @uploaded="onUpload" />
+    </div>
+
     <Form
       v-if="isReady"
       @submit="onFormSubmit"
@@ -129,10 +159,17 @@ const attemptDelete = (event: MouseEvent) => {
         }}</Message>
       </FormField>
 
-      <FormField name="pastor" #default="slotProps" class="w-full">
+      <FormField name="type" #default="slotProps" class="w-full">
         <FloatLabel variant="on">
-          <InputText v-model="slotProps.value" type="text" fluid />
-          <label for="pastor">Pastor</label>
+          <Select
+            v-model="slotProps.value"
+            :options="socialMediaTypes"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select Type"
+            fluid
+          />
+          <label for="type">Type</label>
         </FloatLabel>
         <Message v-if="slotProps.invalid" severity="error" size="small" variant="simple">{{
           slotProps.error?.message
@@ -142,17 +179,7 @@ const attemptDelete = (event: MouseEvent) => {
       <FormField name="link" #default="slotProps" class="w-full">
         <FloatLabel variant="on">
           <InputText v-model="slotProps.value" type="text" fluid />
-          <label for="link">Youtube Link</label>
-        </FloatLabel>
-        <Message v-if="slotProps.invalid" severity="error" size="small" variant="simple">{{
-          slotProps.error?.message
-        }}</Message>
-      </FormField>
-
-      <FormField name="description" #default="slotProps" class="w-full">
-        <FloatLabel variant="on">
-          <InputText v-model="slotProps.value" type="text" fluid />
-          <label for="description">Description</label>
+          <label for="link">Link</label>
         </FloatLabel>
         <Message v-if="slotProps.invalid" severity="error" size="small" variant="simple">{{
           slotProps.error?.message

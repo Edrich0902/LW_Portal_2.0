@@ -11,6 +11,8 @@ import type { Sermon } from '@/types/sermon/sermon.ts'
 
 const sermonsStore = useSermonsStore()
 
+const dt = ref();
+
 onBeforeMount(async () => {
   await sermonsStore.initSermons()
 })
@@ -56,8 +58,17 @@ const onRowClick = (event: DataTableRowClickEvent) => {
   showModal.value = true
 }
 
+const onAdd = () => {
+  selectedItem.value = undefined;
+  showModal.value = true;
+}
+
 const onRefresh = async () => {
   await sermonsStore.initSermons()
+}
+
+const exportCSV = () => {
+  dt.value.exportCSV()
 }
 
 const handleModalClose = (refresh: boolean = false) => {
@@ -78,6 +89,7 @@ watch(searchText, (value) => {
       </IconField>
     </template>
     <DataTable
+      ref="dt"
       :loading="sermonsStore.status === Status.LOADING"
       :value="sermonsStore.data"
       :rows="sermonsStore.pagination.limit"
@@ -100,8 +112,17 @@ watch(searchText, (value) => {
       class="flex-1"
     >
       <template #header>
-        <div class="flex flex-row items-center justify-end">
-          <!-- TODO: add create button here -->
+        <div class="flex flex-row items-center justify-end gap-2">
+          <Button @click="onAdd" icon="pi pi-plus" label="Add" size="small" rounded raised />
+          <Button
+            @click="exportCSV"
+            icon="pi pi-download"
+            label="Export"
+            size="small"
+            severity="secondary"
+            rounded
+            raised
+          />
           <Button @click="onRefresh" icon="pi pi-refresh" size="small" rounded raised />
         </div>
       </template>

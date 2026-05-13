@@ -6,6 +6,8 @@ import type { LwpFilter } from '@/types/lwpFilter.ts'
 import type { LwpPagination } from '@/types/lwpPagination.ts'
 import type { LwpSort } from '@/types/lwpSort.ts'
 import {
+  sbCreateAnnouncement,
+  sbDeleteAnnouncement,
   sbQueryAnnouncements,
   sbUpdateAnnouncement,
 } from '@services/announcements/announcement-service.ts'
@@ -15,6 +17,7 @@ import { useToast } from 'primevue/usetoast'
 export const useAnnouncementsStore = defineStore('announcementsStore', () => {
   const toast = useToast()
   const status = ref<Status>(Status.UNINITIALIZED);
+  const modalStatus = ref<Status>(Status.OK);
   const data = ref<Announcement[]>([]);
   const filter = ref<LwpFilter>({
     searchText: '',
@@ -56,6 +59,45 @@ export const useAnnouncementsStore = defineStore('announcementsStore', () => {
       to: response.count < pagination.value.limit ? response.count : pagination.value.limit - 1,
     }
     status.value = Status.OK;
+  }
+
+  const createAnnouncement = async (announcement: Announcement) => {
+    modalStatus.value = Status.LOADING;
+    const response = await sbCreateAnnouncement(announcement);
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR;
+      toast.add({ severity: 'error', summary: 'Error Creating Announcement', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK;
+      toast.add({ severity: 'success', summary: 'Announcement Created', life: 2000 })
+    }
+  }
+
+  const updateAnnouncement = async (announcement: Announcement) => {
+    modalStatus.value = Status.LOADING;
+    const response = await sbUpdateAnnouncement(announcement);
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR;
+      toast.add({ severity: 'error', summary: 'Error Updating Announcement', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK;
+      toast.add({ severity: 'success', summary: 'Announcement Updated', life: 2000 })
+    }
+  }
+
+  const deleteAnnouncement = async (announcement: Announcement) => {
+    modalStatus.value = Status.LOADING;
+    const response = await sbDeleteAnnouncement(announcement);
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR;
+      toast.add({ severity: 'error', summary: 'Error Deleting Announcement', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK;
+      toast.add({ severity: 'success', summary: 'Announcement Deleted', life: 2000 })
+    }
   }
 
   const sendAnnouncement = async (announcement: Announcement) => {
@@ -102,6 +144,7 @@ export const useAnnouncementsStore = defineStore('announcementsStore', () => {
 
   return {
     status,
+    modalStatus,
     data,
     filter,
     sort,
@@ -109,6 +152,9 @@ export const useAnnouncementsStore = defineStore('announcementsStore', () => {
     tableColumns,
     initAnnouncements,
     queryAnnouncements,
+    createAnnouncement,
+    updateAnnouncement,
+    deleteAnnouncement,
     sendAnnouncement,
     pageAnnouncements,
     sortAnnouncements,

@@ -1,28 +1,32 @@
 <script setup lang="ts">
-  import { AdvancedImage } from '@cloudinary/vue'
-  import { Resize } from '@cloudinary/url-gen/actions/resize'
-  import cloudinary from '@lib/cloudinaryClient'
+import { computed } from 'vue'
+import { AdvancedImage } from '@cloudinary/vue'
+import { Resize } from '@cloudinary/url-gen/actions/resize'
+import cloudinary from '@lib/cloudinaryClient'
 
-  const {
-    publicId = 'samples/cloudinary-icon',
-    className,
-    height,
-    width
-  } = defineProps<{
-    publicId?: string,
-    className?: string,
-    height?: number,
-    width?: number,
-  }>()
+const props = withDefaults(
+  defineProps<{
+    publicId?: string
+    className?: string
+    height?: number
+    width?: number
+  }>(),
+  {
+    publicId: 'samples/cloudinary-icon',
+  },
+)
 
-  const image = cloudinary.image(publicId ?? 'samples/cloudinary-icon')
+const image = computed(() => {
+  const img = cloudinary.image(props.publicId ?? 'samples/cloudinary-icon')
   const resizer = Resize.fit()
 
-  if (height) resizer.height(height)
-  if (width) resizer.width(width)
+  if (props.height) resizer.height(props.height)
+  if (props.width) resizer.width(props.width)
 
   // apply resizing
-  image.resize(resizer)
+  img.resize(resizer)
+  return img
+})
 </script>
 
 <template>
