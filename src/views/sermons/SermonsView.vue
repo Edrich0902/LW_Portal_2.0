@@ -2,10 +2,12 @@
 import { useSermonsStore } from '@stores/sermons/sermons.store.ts'
 import { onBeforeMount, ref, watch } from 'vue'
 import { debounce } from 'lodash'
-import type { DataTablePageEvent, DataTableSortEvent } from 'primevue'
+import type { DataTablePageEvent, DataTableRowClickEvent, DataTableSortEvent } from 'primevue'
 import { Status } from '@/types/status.ts'
 import moment from 'moment'
 import PageWrapper from '@components/page-wrapper/PageWrapper.vue'
+import SermonModal from '@views/sermons/SermonModal.vue'
+import type { Sermon } from '@/types/sermon/sermon.ts'
 
 const sermonsStore = useSermonsStore()
 
@@ -14,6 +16,8 @@ onBeforeMount(async () => {
 })
 
 const searchText = ref<string>(sermonsStore.filter.searchText)
+const showModal = ref<boolean>(false);
+const selectedItem = ref<Sermon>();
 
 const onSearch = debounce(async (value: string) => {
   await sermonsStore.filterSermons({
@@ -47,8 +51,17 @@ const onSort = async (event: DataTableSortEvent) => {
   })
 }
 
+const onRowClick = (event: DataTableRowClickEvent) => {
+  selectedItem.value = event.data as Sermon;
+  showModal.value = true
+}
+
 const onRefresh = async () => {
   await sermonsStore.initSermons()
+}
+
+const handleModalClose = (refresh: boolean = false) => {
+  if (refresh) onRefresh();
 }
 
 watch(searchText, (value) => {
@@ -74,17 +87,21 @@ watch(searchText, (value) => {
       :sortOrder="sermonsStore.sort.order === 'asc' ? 1 : -1"
       @page="onPage"
       @sort="onSort"
+      @row-click="onRowClick"
       data-key="id"
       lazy
       paginator
       striped-rows
       scrollable
       removableSort
+      row-hover
+      :row-class="() => 'cursor-pointer'"
       scroll-height="flex"
       class="flex-1"
     >
       <template #header>
         <div class="flex flex-row items-center justify-end">
+          <!-- TODO: add create button here -->
           <Button @click="onRefresh" icon="pi pi-refresh" size="small" rounded raised />
         </div>
       </template>
@@ -100,10 +117,7 @@ watch(searchText, (value) => {
         :header="col.header"
         :sortable="true"
       >
-        <template
-          v-if="col.field === 'created_at' || col.field === 'updated_at'"
-          #body="slotProps"
-        >
+        <template v-if="col.field === 'created_at' || col.field === 'updated_at'" #body="slotProps">
           {{
             slotProps.data[col.field]
               ? moment(slotProps.data[col.field]).format('DD MMM YYYY HH:mm:ss')
@@ -112,5 +126,12 @@ watch(searchText, (value) => {
         </template>
       </Column>
     </DataTable>
+
+    <SermonModal
+      :key="JSON.stringify(selectedItem)"
+      v-model:visible="showModal"
+      :sermon="selectedItem"
+      @close="handleModalClose"
+    />
   </PageWrapper>
 </template>

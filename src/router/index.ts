@@ -10,6 +10,10 @@ import UsersView from '@views/users/UsersView.vue'
 import AnnouncementsView from '@views/announcements/AnnouncementsView.vue'
 import SermonsView from '@views/sermons/SermonsView.vue'
 import RoleplayersView from '@views/roleplayers/RoleplayersView.vue'
+import EventsView from '@views/events/EventsView.vue'
+import SocialMediaView from '@views/social-media/SocialMediaView.vue'
+import ConnectServeView from '@views/connect-serve/ConnectServeView.vue'
+import VisionMissionView from '@views/vision-mission/VisionMissionView.vue'
 
 const handleMeta = (showMenu: boolean, authed: boolean) => {
   return {
@@ -51,7 +55,7 @@ const router = createRouter({
     {
       path: '/vision-mission',
       name: 'VisionMission',
-      component: ForgotPasswordView,
+      component: VisionMissionView,
       meta: handleMeta(true, true),
     },
     {
@@ -63,19 +67,19 @@ const router = createRouter({
     {
       path: '/events',
       name: 'Events',
-      component: ForgotPasswordView,
+      component: EventsView,
       meta: handleMeta(true, true),
     },
     {
       path: '/social-media',
       name: 'SocialMedia',
-      component: ForgotPasswordView,
+      component: SocialMediaView,
       meta: handleMeta(true, true),
     },
     {
       path: '/connect-serve',
       name: 'ConnectServe',
-      component: ForgotPasswordView,
+      component: ConnectServeView,
       meta: handleMeta(true, true),
     },
 
@@ -83,13 +87,13 @@ const router = createRouter({
     {
       path: '/profile',
       name: 'Profile',
-      component: ForgotPasswordView,
+      component: ForgotPasswordView, // TODO: implement
       meta: handleMeta(true, true),
     },
     {
       path: '/settings',
       name: 'Settings',
-      component: ForgotPasswordView,
+      component: ForgotPasswordView, // TODO: implement
       meta: handleMeta(true, true),
     },
   ],

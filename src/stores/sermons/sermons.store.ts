@@ -6,11 +6,17 @@ import type { LwpPagination } from '@/types/lwpPagination.ts'
 import type { LwpSort } from '@/types/lwpSort.ts'
 import { Status } from '@/types/status.ts'
 import type { Sermon } from '@/types/sermon/sermon.ts'
-import { sbQuerySermons } from '@services/sermons/sermon-service.ts'
+import {
+  sbCreateSermon,
+  sbDeleteSermon,
+  sbQuerySermons,
+  sbUpdateSermon,
+} from '@services/sermons/sermon-service.ts'
 
 export const useSermonsStore = defineStore('sermonsStore', () => {
   const toast = useToast();
   const status = ref<Status>(Status.UNINITIALIZED);
+  const modalStatus = ref<Status>(Status.OK);
   const data = ref<Sermon[]>([]);
   const filter = ref<LwpFilter>({
     searchText: '',
@@ -75,8 +81,48 @@ export const useSermonsStore = defineStore('sermonsStore', () => {
     await querySermons()
   }
 
+  const updateSermon = async (sermon: Sermon) => {
+    modalStatus.value = Status.LOADING;
+    const response = await sbUpdateSermon(sermon);
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR;
+      toast.add({ severity: 'error', summary: 'Error Updating Sermon', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK;
+      toast.add({ severity: 'success', summary: 'Sermon Updated', life: 2000 })
+    }
+  }
+
+  const createSermon = async (sermon: Sermon) => {
+    modalStatus.value = Status.LOADING;
+    const response = await sbCreateSermon(sermon);
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR;
+      toast.add({ severity: 'error', summary: 'Error Creating Sermon', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK;
+      toast.add({ severity: 'success', summary: 'Sermon Created', life: 2000 })
+    }
+  }
+
+  const deleteSermon = async (sermon: Sermon) => {
+    modalStatus.value = Status.LOADING;
+    const response = await sbDeleteSermon(sermon);
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR;
+      toast.add({ severity: 'error', summary: 'Error Deleting Sermon', life: 2000 })
+    } else {
+      modalStatus.value = Status.OK;
+      toast.add({ severity: 'success', summary: 'Sermon Deleted', life: 2000 })
+    }
+  }
+
   return {
     status,
+    modalStatus,
     data,
     filter,
     sort,
@@ -86,6 +132,9 @@ export const useSermonsStore = defineStore('sermonsStore', () => {
     querySermons,
     pageSermons,
     sortSermons,
-    filterSermons
+    filterSermons,
+    updateSermon,
+    createSermon,
+    deleteSermon,
   }
 });
