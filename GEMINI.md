@@ -45,6 +45,10 @@ Copy `.env.example` to `.env` and provide the following:
 - **Linting:** `npm run lint` (runs ESLint and Oxlint)
 - **Formatting:** `npm run format` (runs Prettier)
 
+### Build Target & Top-Level Await
+The project uses **top-level await** in `src/main.ts` to ensure authentication is initialized before the app mounts and the router is used. 
+- **CRITICAL:** The `vite.config.ts` must have `build.target` set to `esnext` (or at least `es2022`) to support this during the build process.
+
 ## Coding Conventions
 1. **Composition API:** Always use `<script setup lang="ts">` in Vue components.
 2. **Type Safety:** Ensure all data structures are typed in `src/types/`. Avoid `any`.

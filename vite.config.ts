@@ -32,6 +32,7 @@ export default defineConfig(({mode}) => {
       build: {
         outDir: './dist/dev',
         sourcemap: true,
+        target: 'esnext'
       },
       resolve: {
         alias: aliases
@@ -51,6 +52,7 @@ export default defineConfig(({mode}) => {
       build: {
         outDir: './dist/stage',
         sourcemap: false,
+        target: 'esnext'
       },
       resolve: {
         alias: aliases
@@ -70,6 +72,7 @@ export default defineConfig(({mode}) => {
       build: {
         outDir: './dist/prod',
         sourcemap: false,
+        target: 'esnext'
       },
       resolve: {
         alias: aliases
@@ -92,6 +95,7 @@ export default defineConfig(({mode}) => {
     build: {
       outDir: './dist/dev',
       sourcemap: true,
+      target: 'esnext'
     },
     resolve: {
       alias: aliases
