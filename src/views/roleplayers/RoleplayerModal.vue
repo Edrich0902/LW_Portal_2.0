@@ -128,16 +128,14 @@ const attemptDelete = (event: MouseEvent) => {
 
 <template>
   <Dialog v-model:visible="model" modal :header="modalTitle" class="w-1/3">
-    <div class="flex flex-col items-center gap-3 mb-4">
-      <Avatar shape="circle" size="xlarge" class="w-32 h-32">
-        <LwpImage
-          :public-id="profilePublicId"
-          :height="150"
-          :width="150"
-          class-name="object-cover w-32 h-32 rounded-full"
-        />
-      </Avatar>
-      <LwpImageUploader label="Upload Profile Picture" @uploaded="onUpload" />
+    <div class="flex flex-col items-center gap-4 mb-6">
+      <LwpImage
+        :public-id="profilePublicId"
+        :height="200"
+        :width="200"
+        class-name="w-40 h-40 object-cover rounded-full shadow-lg border-4 border-white dark:border-gray-800"
+      />
+      <LwpImageUploader label="Change Profile Picture" @uploaded="onUpload" />
     </div>
 
     <Form
@@ -178,14 +176,24 @@ const attemptDelete = (event: MouseEvent) => {
         }}</Message>
       </FormField>
 
-      <div class="flex flex-row gap-1 justify-end w-full">
-        <Button v-if="isUpdating" label="Delete" severity="danger" @click="attemptDelete" />
-        <Button label="Cancel" variant="outlined" @click="closeAndResetModal()" />
-        <Button
-          :label="isUpdating ? 'Update' : 'Create'"
-          type="submit"
-          :loading="store.modalStatus === Status.LOADING"
-        />
+      <div class="flex items-center justify-between w-full mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+        <div>
+          <Button
+            v-if="isUpdating"
+            label="Delete"
+            severity="danger"
+            variant="text"
+            @click="attemptDelete"
+          />
+        </div>
+        <div class="flex gap-3">
+          <Button label="Cancel" variant="outlined" severity="secondary" @click="closeAndResetModal()" />
+          <Button
+            :label="isUpdating ? 'Update' : 'Create'"
+            type="submit"
+            :loading="store.modalStatus === Status.LOADING"
+          />
+        </div>
       </div>
     </Form>
   </Dialog>

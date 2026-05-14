@@ -186,14 +186,24 @@ const socialMediaTypes = ref(Object.values(SocialMediaType).map(v => ({ label: v
         }}</Message>
       </FormField>
 
-      <div class="flex flex-row gap-1 justify-end w-full">
-        <Button v-if="isUpdating" label="Delete" severity="danger" @click="attemptDelete" />
-        <Button label="Cancel" variant="outlined" @click="closeAndResetModal()" />
-        <Button
-          :label="isUpdating ? 'Update' : 'Create'"
-          type="submit"
-          :loading="store.modalStatus === Status.LOADING"
-        />
+      <div class="flex items-center justify-between w-full mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+        <div>
+          <Button
+            v-if="isUpdating"
+            label="Delete"
+            severity="danger"
+            variant="text"
+            @click="attemptDelete"
+          />
+        </div>
+        <div class="flex gap-3">
+          <Button label="Cancel" variant="outlined" severity="secondary" @click="closeAndResetModal()" />
+          <Button
+            :label="isUpdating ? 'Update' : 'Create'"
+            type="submit"
+            :loading="store.modalStatus === Status.LOADING"
+          />
+        </div>
       </div>
     </Form>
   </Dialog>

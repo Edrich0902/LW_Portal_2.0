@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { AdvancedImage } from '@cloudinary/vue'
 import { Resize } from '@cloudinary/url-gen/actions/resize'
 import cloudinary from '@lib/cloudinaryClient'
@@ -18,6 +18,8 @@ const props = withDefaults(
   },
 )
 
+const isLoaded = ref(false)
+
 const image = computed(() => {
   const img = cloudinary.image(props.publicId ?? 'samples/cloudinary-icon')
   const resizer = Resize.fill()
@@ -33,15 +35,47 @@ const image = computed(() => {
 const imageUrl = computed(() => {
   return cloudinary.image(props.publicId ?? 'samples/cloudinary-icon').toURL()
 })
+
+const handleLoad = () => {
+  isLoaded.value = true
+}
+
+// Reset loading state when image changes
+watch(
+  () => props.publicId,
+  () => {
+    isLoaded.value = false
+  },
+)
+const handleClick = (event: Event) => {
+  if (props.preview) {
+    event.stopPropagation()
+  }
+}
 </script>
 
 <template>
-  <div :class="['overflow-hidden flex items-center justify-center', className]">
+  <div
+    :class="['relative overflow-hidden flex items-center justify-center', className]"
+    @click="handleClick"
+  >
+    <Skeleton v-if="!isLoaded" class="absolute inset-0 w-full h-full" />
     <Image v-if="preview" :src="imageUrl" class="w-full h-full" preview>
       <template #image>
-        <AdvancedImage :cld-img="image" class="w-full h-full object-cover" />
+        <AdvancedImage
+          :cld-img="image"
+          class="w-full h-full object-cover transition-opacity duration-300"
+          :class="isLoaded ? 'opacity-100' : 'opacity-0'"
+          @load="handleLoad"
+        />
       </template>
     </Image>
-    <AdvancedImage v-else :cld-img="image" class="w-full h-full object-cover" />
+    <AdvancedImage
+      v-else
+      :cld-img="image"
+      class="w-full h-full object-cover transition-opacity duration-300"
+      :class="isLoaded ? 'opacity-100' : 'opacity-0'"
+      @load="handleLoad"
+    />
   </div>
 </template>

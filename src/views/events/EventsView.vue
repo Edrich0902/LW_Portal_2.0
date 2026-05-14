@@ -164,6 +164,9 @@ watch(searchText, (value) => {
         <template v-else-if="col.field === 'category'" #body="slotProps">
           <LwpStatusTag :value="slotProps.data[col.field]" />
         </template>
+        <template v-else-if="col.field === 'type'" #body="slotProps">
+          <LwpStatusTag :value="slotProps.data[col.field]" />
+        </template>
         <template v-else-if="col.field === 'description'" #body="slotProps">
           <div class="max-w-xs truncate" :title="slotProps.data[col.field]">
             {{ slotProps.data[col.field] }}

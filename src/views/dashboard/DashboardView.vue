@@ -42,22 +42,26 @@ const quickActions = ref([
   {
     label: 'Add Announcement',
     icon: 'pi pi-megaphone',
-    command: () => router.push('/announcements')
+    command: () => router.push('/announcements'),
+    tooltip: 'Add Announcement'
   },
   {
     label: 'Add Event',
     icon: 'pi pi-calendar',
-    command: () => router.push('/events')
+    command: () => router.push('/events'),
+    tooltip: 'Add Event'
   },
   {
     label: 'Add Sermon',
     icon: 'pi pi-book',
-    command: () => router.push('/sermons')
+    command: () => router.push('/sermons'),
+    tooltip: 'Add Sermon'
   },
   {
     label: 'Users',
     icon: 'pi pi-users',
-    command: () => router.push('/users')
+    command: () => router.push('/users'),
+    tooltip: 'Manage Users'
   }
 ])
 
@@ -282,8 +286,7 @@ const getNextOccurrence = (dayName: string, startDate?: string) => {
                   <div class="font-semibold truncate group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors">{{ announcement.title }}</div>
                   <div class="text-xs text-gray-500">{{ moment(announcement.created_at).fromNow() }}</div>
                 </div>
-                <i v-if="announcement.state === AnnouncementState.SENT" class="pi pi-check-circle text-green-500" title="Sent"></i>
-                <i v-else class="pi pi-clock text-orange-500" title="Pending"></i>
+                <LwpStatusTag :value="announcement.state" />
               </div>
               <div v-if="latestAnnouncements.length === 0" class="text-center py-8 text-gray-400">
                 No announcements to show
@@ -309,10 +312,13 @@ const getNextOccurrence = (dayName: string, startDate?: string) => {
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="font-semibold truncate group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors">{{ event.title }}</div>
-                  <div class="text-xs text-gray-500">{{ event.day }} • {{ event.category }}</div>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="text-xs text-gray-500">{{ event.day }}</span>
+                    <LwpStatusTag :value="event.category" />
+                  </div>
                 </div>
                 <div class="text-xs font-medium px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-gray-600 dark:text-gray-400">
-                  {{ event.time }}
+                  {{ moment(event.time, 'HH:mm').format('HH:mm') }}
                 </div>
               </div>
               <div v-if="upcomingEvents.length === 0" class="text-center py-8 text-gray-400">
@@ -325,7 +331,15 @@ const getNextOccurrence = (dayName: string, startDate?: string) => {
 
       <!-- Quick Actions SpeedDial -->
       <div class="fixed bottom-8 right-8 z-50">
-        <SpeedDial :model="quickActions" direction="up" :transitionDelay="80" showIcon="pi pi-plus" hideIcon="pi pi-times" buttonClass="p-button-primary p-button-rounded p-button-lg shadow-xl" />
+        <SpeedDial 
+          :model="quickActions" 
+          direction="up" 
+          :transitionDelay="80" 
+          showIcon="pi pi-plus" 
+          hideIcon="pi pi-times" 
+          buttonClass="p-button-primary p-button-rounded p-button-lg shadow-xl"
+          :tooltipOptions="{ position: 'left' }"
+        />
       </div>
     </div>
   </PageWrapper>
