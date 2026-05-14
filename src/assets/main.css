@@ -1,3 +1,70 @@
 @import 'tailwindcss';
 @import 'tailwindcss-primeui';
 @import 'primeicons/primeicons.css';
+
+@layer components {
+  /* Global Input Standardization */
+  .p-inputtext,
+  .p-password-input,
+  .p-textarea,
+  .p-select,
+  .p-datepicker-input,
+  .p-multiselect,
+  .p-inputnumber-input {
+    @apply !p-3 !text-base !rounded-xl !border-surface-300 dark:!border-surface-700 !bg-surface-50 dark:!bg-surface-900 focus:!ring-primary-500 focus:!border-primary-500 !transition-all !duration-200;
+  }
+
+  /* Fix IconField overlap when using global large padding */
+  .p-iconfield .p-inputtext {
+    @apply !pl-10;
+  }
+
+  /* Global Button Standardization */
+  /* Target primary buttons while excluding internal component controls */
+  .p-button:not(.p-dialog-close-button):not(.p-dialog-header-action):not(.p-paginator-page):not(.p-paginator-next):not(.p-paginator-prev):not(.p-paginator-first):not(.p-paginator-last) {
+    @apply !py-3 !px-6 !text-base !font-bold !h-[3rem];
+  }
+
+  /* Apply standardized border radius unless explicitly overridden by .p-button-rounded */
+  .p-button:not(.p-dialog-close-button):not(.p-dialog-header-action):not(.p-paginator-page):not(.p-button-rounded) {
+    @apply !rounded-xl;
+  }
+
+  /* Standardizing Icon-Only Buttons */
+  .p-button-icon-only:not(.p-dialog-close-button):not(.p-dialog-header-action):not(.p-button-sm) {
+    @apply !p-0 !w-[3rem] !h-[3rem] flex items-center justify-center;
+  }
+
+  /* Support for PrimeVue's size="small" prop */
+  .p-button-sm:not(.p-dialog-close-button):not(.p-dialog-header-action) {
+    @apply !py-2 !px-4 !text-sm !font-bold !h-[2.5rem];
+  }
+  
+  /* Apply standardized border radius for small buttons unless rounded */
+  .p-button-sm:not(.p-dialog-close-button):not(.p-dialog-header-action):not(.p-button-rounded) {
+    @apply !rounded-lg;
+  }
+
+  .p-button-sm.p-button-icon-only:not(.p-dialog-close-button):not(.p-dialog-header-action) {
+    @apply !p-0 !w-[2.5rem] !h-[2.5rem] flex items-center justify-center;
+  }
+
+  /* Resetting & Fixing Modal Close Button visibility and centering (PrimeVue 4 classes) */
+  .p-dialog-close-button,
+  .p-dialog-header-action,
+  .p-dialog-header-close {
+    @apply !p-0 !w-10 !h-10 !rounded-full !bg-transparent !border-none !shadow-none flex items-center justify-center hover:!bg-surface-100 dark:hover:!bg-surface-800 !transition-colors;
+  }
+
+  .p-dialog-close-icon,
+  .p-dialog-header-close-icon {
+    @apply !block !w-5 !h-5 !text-surface-600 dark:!text-surface-400;
+  }
+  
+  /* Ensure the close button doesn't inherit global button margins or icons padding */
+  .p-dialog-close-button .p-button-icon,
+  .p-dialog-header-action .p-button-icon,
+  .p-dialog-header-close .p-button-icon {
+    @apply !m-0 !p-0 !w-5 !h-5;
+  }
+}

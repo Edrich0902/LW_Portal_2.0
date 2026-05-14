@@ -59,6 +59,12 @@ Copy `.env.example` to `.env` and provide the following:
    - `@services` -> `src/services/`
    - `@lib` -> `src/lib/`
 
+## Tailwind CSS & Styling
+1. **CRITICAL: Utility Importance:** When using `@apply` in CSS files (like `src/assets/main.css`), **NEVER** use the trailing `!important` syntax (e.g., `@apply p-4 !important;` will fail).
+   - **CORRECT:** Use the Tailwind important prefix `!` on each individual utility class (e.g., `@apply !p-4 !text-lg;`).
+2. **Variant Order:** When combining the important prefix with variants, the `!` must come after the variant but before the utility (e.g., `dark:!bg-surface-900`, `focus:!ring-primary-500`).
+3. **Component Overrides:** Use `@layer components` for global PrimeVue overrides to ensure correct cascade and build stability.
+
 ## Engineering Standards (UI/UX)
 1. **Asynchronous Operations:** Every asynchronous operation (API calls, data fetching, file uploads) MUST have associated **Loading** and **Error** states.
    - **Loading States:** Use `ProgressSpinner` or Skeleton components to provide immediate visual feedback. Never leave the user wondering if the app is still working.
