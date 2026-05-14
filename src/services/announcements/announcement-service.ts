@@ -3,7 +3,7 @@ import type { LwpPagination } from '@/types/lwpPagination.ts'
 import type { LwpSort } from '@/types/lwpSort.ts'
 import type { LwpFilter } from '@/types/lwpFilter.ts'
 import type { SupabaseResponse, SingleSupabaseResponse } from '@/types/supabase-response.ts'
-import type { Announcement } from '@/types/announcement/announcement.ts';
+import { type Announcement, AnnouncementState } from '@/types/announcement/announcement.ts';
 
 export const sbQueryAnnouncements = async (
   pagination: LwpPagination,

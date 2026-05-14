@@ -11,6 +11,7 @@ import { EventCategory } from '@/types/eventCategory.ts'
 import { EventType } from '@/types/eventType.ts'
 import { Weekday } from '@/types/weekday.ts'
 import { useEventsStore } from '@stores/events/events.store.ts'
+import moment from 'moment'
 
 const toast = useToast()
 const confirm = useConfirm()
@@ -26,7 +27,12 @@ const props = withDefaults(
   },
 )
 
-let initialValues: Partial<Event> = {}
+interface FormValues extends Omit<Event, 'start_date' | 'end_date'> {
+  start_date?: Date | null
+  end_date?: Date | null
+}
+
+let initialValues: Partial<FormValues> = {}
 const isReady = ref(false)
 const bannerPublicId = ref<string | undefined>(props.eventItem?.banner_public_id)
 const bannerUrl = ref<string | undefined>(props.eventItem?.banner_url)
@@ -82,11 +88,6 @@ const isUpdating = computed(() => {
 const closeAndResetModal = (shouldRefresh: boolean = false) => {
   model.value = false
   emit('close', shouldRefresh)
-}
-
-interface FormValues extends Omit<Event, 'start_date' | 'end_date'> {
-  start_date?: Date | null
-  end_date?: Date | null
 }
 
 const onFormSubmit = async ({ valid, values }: FormSubmitEvent<FormValues>) => {
