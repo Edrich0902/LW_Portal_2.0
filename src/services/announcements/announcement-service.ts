@@ -105,6 +105,36 @@ export const sbDeleteAnnouncement = async (
   }
 }
 
+export const sbGetPendingAnnouncementsCount = async (): Promise<number> => {
+  const { count, error } = await supabase
+    .from('announcements')
+    .select('*', { count: 'exact', head: true })
+    .eq('state', AnnouncementState.PENDING)
+
+  if (error) {
+    console.error(error.code, error.message)
+    return 0
+  }
+
+  return count ?? 0
+}
+
+export const sbGetLatestAnnouncements = async (limit: number = 5): Promise<Announcement[]> => {
+  const { data, error } = await supabase
+    .from('announcements')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit)
+    .returns<Announcement[]>()
+
+  if (error) {
+    console.error(error.code, error.message)
+    return []
+  }
+
+  return data ?? []
+}
+
 const formatSearchText = (searchText: string, and = false) => {
   const split = searchText.split(' ')
   const quotedParts = split.map((part) => `'${part.trim()}'`)

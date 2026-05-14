@@ -39,6 +39,8 @@ onBeforeMount(() => {
     type: props.eventItem?.type ?? EventType.WEEKLY,
     day: props.eventItem?.day ?? Weekday.SUNDAY,
     time: props.eventItem?.time ?? '',
+    start_date: props.eventItem?.start_date ? new Date(props.eventItem.start_date) : undefined,
+    end_date: props.eventItem?.end_date ? new Date(props.eventItem.end_date) : undefined,
   }
 
   isReady.value = true
@@ -53,6 +55,8 @@ const resolver = ref(
       type: yup.string().required('Type is required'),
       day: yup.string().required('Day is required'),
       time: yup.string().required('Time is required'),
+      start_date: yup.date().nullable(),
+      end_date: yup.date().nullable(),
     }),
   ),
 )
@@ -80,7 +84,12 @@ const closeAndResetModal = (shouldRefresh: boolean = false) => {
   emit('close', shouldRefresh)
 }
 
-const onFormSubmit = async ({ valid, values }: FormSubmitEvent<Event>) => {
+interface FormValues extends Omit<Event, 'start_date' | 'end_date'> {
+  start_date?: Date | null
+  end_date?: Date | null
+}
+
+const onFormSubmit = async ({ valid, values }: FormSubmitEvent<FormValues>) => {
   if (!valid) {
     toast.add({ severity: 'error', summary: 'Some inputs are invalid', life: 2000 })
     return
@@ -89,14 +98,16 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent<Event>) => {
   const payload = {
     ...props.eventItem,
     ...values,
+    start_date: values.start_date ? moment(values.start_date).format('YYYY-MM-DD') : null,
+    end_date: values.end_date ? moment(values.end_date).format('YYYY-MM-DD') : null,
     banner_public_id: bannerPublicId.value,
     banner_url: bannerUrl.value,
   }
 
   if (isUpdating.value) {
-    await store.updateEvent(payload as Event)
+    await store.updateEvent(payload as unknown as Event)
   } else {
-    await store.createEvent(payload as Event)
+    await store.createEvent(payload as unknown as Event)
   }
 
   if (store.modalStatus === Status.OK) {
@@ -104,7 +115,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent<Event>) => {
   }
 }
 
-const onUpload = (info: any) => {
+const onUpload = (info: { public_id: string; secure_url: string }) => {
   bannerPublicId.value = info.public_id
   bannerUrl.value = info.secure_url
   toast.add({ severity: 'success', summary: 'Image uploaded', life: 2000 })
@@ -228,6 +239,28 @@ const weekdays = ref(Object.values(Weekday).map(v => ({ label: v, value: v })))
           <FloatLabel variant="on">
             <InputText v-model="slotProps.value" type="text" fluid />
             <label for="time">Time (e.g. 18:30)</label>
+          </FloatLabel>
+          <Message v-if="slotProps.invalid" severity="error" size="small" variant="simple">{{
+            slotProps.error?.message
+          }}</Message>
+        </FormField>
+      </div>
+
+      <div class="flex flex-row gap-3 w-full">
+        <FormField name="start_date" #default="slotProps" class="w-full">
+          <FloatLabel variant="on">
+            <DatePicker v-model="slotProps.value" dateFormat="yy-mm-dd" fluid />
+            <label for="start_date">Start Date</label>
+          </FloatLabel>
+          <Message v-if="slotProps.invalid" severity="error" size="small" variant="simple">{{
+            slotProps.error?.message
+          }}</Message>
+        </FormField>
+
+        <FormField name="end_date" #default="slotProps" class="w-full">
+          <FloatLabel variant="on">
+            <DatePicker v-model="slotProps.value" dateFormat="yy-mm-dd" fluid />
+            <label for="end_date">End Date</label>
           </FloatLabel>
           <Message v-if="slotProps.invalid" severity="error" size="small" variant="simple">{{
             slotProps.error?.message

@@ -96,6 +96,24 @@ export const sbDeleteSermon = async (sermon: Sermon): Promise<SingleSupabaseResp
   }
 }
 
+export const sbGetLatestSermon = async (): Promise<Sermon | null> => {
+  const { data, error } = await supabase
+    .from('sermons')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single<Sermon>()
+
+  if (error) {
+    if (error.code !== 'PGRST116') { // No rows found is fine
+      console.error(error.code, error.message)
+    }
+    return null
+  }
+
+  return data
+}
+
 const formatSearchText = (searchText: string, and = false) => {
   const split = searchText.split(' ')
   const quotedParts = split.map((part) => `'${part.trim()}'`)

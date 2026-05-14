@@ -6,6 +6,9 @@ import { debounce } from 'lodash'
 import { type DataTablePageEvent, type DataTableRowClickEvent, type DataTableSortEvent, useConfirm } from 'primevue'
 import { Status } from '@/types/status.ts'
 import LwpImage from '@components/lwp-image/LwpImage.vue'
+import LwpEmptyState from '@components/lwp-empty-state/LwpEmptyState.vue'
+import LwpSkeletonTable from '@components/lwp-skeleton-table/LwpSkeletonTable.vue'
+import LwpStatusTag from '@components/lwp-status-tag/LwpStatusTag.vue'
 import moment from 'moment/moment'
 import { type Announcement, AnnouncementState } from '@/types/announcement/announcement.ts'
 import AnnouncementsModal from '@views/announcements/AnnouncementsModal.vue'
@@ -111,9 +114,12 @@ watch(searchText, (value) => {
         <InputText v-model="searchText" placeholder="Search announcements..." />
       </IconField>
     </template>
+
+    <LwpSkeletonTable v-if="announcementsStore.status === Status.LOADING" :columns="6" :rows="10" />
+
     <DataTable
+      v-else
       ref="dt"
-      :loading="announcementsStore.status === Status.LOADING"
       :value="announcementsStore.data"
       :rows="announcementsStore.pagination.limit"
       :first="announcementsStore.pagination.from"
@@ -152,9 +158,14 @@ watch(searchText, (value) => {
         </div>
       </template>
       <template #empty>
-        <p class="flex flex-row justify-center items-center text-primary-900 dark:text-white">
-          No Announcements Found
-        </p>
+        <LwpEmptyState
+          title="No Announcements Found"
+          description="Try adjusting your search or add a new announcement to get started."
+        >
+          <template #action>
+            <Button label="Create Announcement" icon="pi pi-plus" @click="onAdd" />
+          </template>
+        </LwpEmptyState>
       </template>
       <Column
         v-for="col of announcementsStore.tableColumns"
@@ -164,27 +175,21 @@ watch(searchText, (value) => {
         :sortable="col.sortable"
       >
         <template v-if="col.field === 'image_public_id'" #body="slotProps">
-          <Avatar shape="circle" size="large">
-            <LwpImage
-              :public-id="slotProps.data.image_public_id"
-              :height="50"
-              :width="50"
-              class-name="object-cover"
-            />
-          </Avatar>
+          <LwpImage
+            :public-id="slotProps.data.image_public_id"
+            :height="40"
+            :width="40"
+            class-name="w-10 h-10 object-cover rounded-full shadow-sm"
+            preview
+          />
         </template>
         <template v-else-if="col.field === 'title'" #body="slotProps">
-          <div class="max-w-xs truncate" :title="slotProps.data[col.field]">
+          <div class="max-w-xs truncate font-medium" :title="slotProps.data[col.field]">
             {{ slotProps.data[col.field] }}
           </div>
         </template>
         <template v-else-if="col.field === 'state'" #body="slotProps">
-          <i
-            v-if="slotProps.data[col.field] === AnnouncementState.SENT"
-            class="pi pi-check"
-            style="color: green"
-          ></i>
-          <i v-else class="pi pi-times" style="color: red"></i>
+          <LwpStatusTag :value="slotProps.data[col.field]" />
         </template>
         <template
           v-else-if="col.field === 'created_at' || col.field === 'updated_at'"

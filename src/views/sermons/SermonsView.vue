@@ -6,6 +6,8 @@ import type { DataTablePageEvent, DataTableRowClickEvent, DataTableSortEvent } f
 import { Status } from '@/types/status.ts'
 import moment from 'moment'
 import PageWrapper from '@components/page-wrapper/PageWrapper.vue'
+import LwpEmptyState from '@components/lwp-empty-state/LwpEmptyState.vue'
+import LwpSkeletonTable from '@components/lwp-skeleton-table/LwpSkeletonTable.vue'
 import SermonModal from '@views/sermons/SermonModal.vue'
 import type { Sermon } from '@/types/sermon/sermon.ts'
 
@@ -88,9 +90,12 @@ watch(searchText, (value) => {
         <InputText v-model="searchText" placeholder="Search sermons..." />
       </IconField>
     </template>
+
+    <LwpSkeletonTable v-if="sermonsStore.status === Status.LOADING" :columns="4" :rows="10" />
+
     <DataTable
+      v-else
       ref="dt"
-      :loading="sermonsStore.status === Status.LOADING"
       :value="sermonsStore.data"
       :rows="sermonsStore.pagination.limit"
       :first="sermonsStore.pagination.from"
@@ -129,9 +134,14 @@ watch(searchText, (value) => {
         </div>
       </template>
       <template #empty>
-        <p class="flex flex-row justify-center items-center text-primary-900 dark:text-white">
-          No Sermons Found
-        </p>
+        <LwpEmptyState
+          title="No Sermons Found"
+          description="Try adjusting your search or add a new sermon to get started."
+        >
+          <template #action>
+            <Button label="Create Sermon" icon="pi pi-plus" @click="onAdd" />
+          </template>
+        </LwpEmptyState>
       </template>
       <Column
         v-for="col of sermonsStore.tableColumns"

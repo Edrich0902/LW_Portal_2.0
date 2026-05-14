@@ -5,11 +5,17 @@ import type { LwpFilter } from '@/types/lwpFilter.ts'
 import type { LwpPagination } from '@/types/lwpPagination.ts'
 import type { LwpSort } from '@/types/lwpSort.ts'
 import { Status } from '@/types/status.ts'
-import { sbQueryUsers } from '@services/users/users-service.ts'
+import { sbQueryUsers, sbGetUsersCounts } from '@services/users/users-service.ts'
 
 export const useUsersStore = defineStore('usersStore', () => {
   const status = ref<Status>(Status.UNINITIALIZED)
   const data = ref<User[]>([])
+  const userCounts = ref({
+    members: 0,
+    nonMembers: 0,
+    baptized: 0,
+    nonBaptized: 0,
+  })
   const filter = ref<LwpFilter>({
     searchText: '',
   })
@@ -40,7 +46,11 @@ export const useUsersStore = defineStore('usersStore', () => {
 
   const initUsers = async () => {
     status.value = Status.LOADING
-    await queryUsers()
+    await Promise.all([queryUsers(), fetchUserCounts()])
+  }
+
+  const fetchUserCounts = async () => {
+    userCounts.value = await sbGetUsersCounts()
   }
 
   const queryUsers = async () => {
@@ -81,11 +91,13 @@ export const useUsersStore = defineStore('usersStore', () => {
   return {
     status,
     data,
+    userCounts,
     filter,
     sort,
     pagination,
     tableColumns,
     initUsers,
+    fetchUserCounts,
     queryUsers,
     pageUsers,
     sortUsers,

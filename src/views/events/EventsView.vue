@@ -7,6 +7,9 @@ import { Status } from '@/types/status.ts'
 import moment from 'moment'
 import PageWrapper from '@components/page-wrapper/PageWrapper.vue'
 import LwpImage from '@components/lwp-image/LwpImage.vue'
+import LwpEmptyState from '@components/lwp-empty-state/LwpEmptyState.vue'
+import LwpSkeletonTable from '@components/lwp-skeleton-table/LwpSkeletonTable.vue'
+import LwpStatusTag from '@components/lwp-status-tag/LwpStatusTag.vue'
 import EventsModal from '@views/events/EventsModal.vue'
 import type { Event } from '@/types/event/event.ts'
 
@@ -89,9 +92,12 @@ watch(searchText, (value) => {
         <InputText v-model="searchText" placeholder="Search events..." />
       </IconField>
     </template>
+
+    <LwpSkeletonTable v-if="eventsStore.status === Status.LOADING" :columns="5" :rows="10" />
+
     <DataTable
+      v-else
       ref="dt"
-      :loading="eventsStore.status === Status.LOADING"
       :value="eventsStore.data"
       :rows="eventsStore.pagination.limit"
       :first="eventsStore.pagination.from"
@@ -130,9 +136,14 @@ watch(searchText, (value) => {
         </div>
       </template>
       <template #empty>
-        <p class="flex flex-row justify-center items-center text-primary-900 dark:text-white">
-          No Events Found
-        </p>
+        <LwpEmptyState
+          title="No Events Found"
+          description="Try adjusting your search or add a new event to get started."
+        >
+          <template #action>
+            <Button label="Create Event" icon="pi pi-plus" @click="onAdd" />
+          </template>
+        </LwpEmptyState>
       </template>
       <Column
         v-for="col of eventsStore.tableColumns"
@@ -142,14 +153,16 @@ watch(searchText, (value) => {
         :sortable="true"
       >
         <template v-if="col.field === 'banner_public_id'" #body="slotProps">
-          <Avatar shape="circle" size="large">
-            <LwpImage
-              :public-id="slotProps.data.banner_public_id"
-              :height="50"
-              :width="50"
-              class-name="object-cover"
-            />
-          </Avatar>
+          <LwpImage
+            :public-id="slotProps.data.banner_public_id"
+            :height="40"
+            :width="40"
+            class-name="w-10 h-10 object-cover rounded-full shadow-sm"
+            preview
+          />
+        </template>
+        <template v-else-if="col.field === 'category'" #body="slotProps">
+          <LwpStatusTag :value="slotProps.data[col.field]" />
         </template>
         <template v-else-if="col.field === 'description'" #body="slotProps">
           <div class="max-w-xs truncate" :title="slotProps.data[col.field]">

@@ -7,6 +7,9 @@ import { Status } from '@/types/status.ts'
 import moment from 'moment'
 import PageWrapper from '@components/page-wrapper/PageWrapper.vue'
 import LwpImage from '@components/lwp-image/LwpImage.vue'
+import LwpEmptyState from '@components/lwp-empty-state/LwpEmptyState.vue'
+import LwpSkeletonTable from '@components/lwp-skeleton-table/LwpSkeletonTable.vue'
+import LwpStatusTag from '@components/lwp-status-tag/LwpStatusTag.vue'
 import SocialMediaModal from '@views/social-media/SocialMediaModal.vue'
 import type { SocialMedia } from '@/types/social-media/social-media.ts'
 
@@ -89,9 +92,12 @@ watch(searchText, (value) => {
         <InputText v-model="searchText" placeholder="Search social media..." />
       </IconField>
     </template>
+
+    <LwpSkeletonTable v-if="socialMediaStore.status === Status.LOADING" :columns="5" :rows="10" />
+
     <DataTable
+      v-else
       ref="dt"
-      :loading="socialMediaStore.status === Status.LOADING"
       :value="socialMediaStore.data"
       :rows="socialMediaStore.pagination.limit"
       :first="socialMediaStore.pagination.from"
@@ -130,9 +136,14 @@ watch(searchText, (value) => {
         </div>
       </template>
       <template #empty>
-        <p class="flex flex-row justify-center items-center text-primary-900 dark:text-white">
-          No Social Media Found
-        </p>
+        <LwpEmptyState
+          title="No Social Media Found"
+          description="Try adjusting your search or add a new social media link to get started."
+        >
+          <template #action>
+            <Button label="Create Social Media" icon="pi pi-plus" @click="onAdd" />
+          </template>
+        </LwpEmptyState>
       </template>
       <Column
         v-for="col of socialMediaStore.tableColumns"
@@ -142,17 +153,19 @@ watch(searchText, (value) => {
         :sortable="true"
       >
         <template v-if="col.field === 'banner_public_id'" #body="slotProps">
-          <Avatar shape="circle" size="large">
-            <LwpImage
-              :public-id="slotProps.data.banner_public_id"
-              :height="50"
-              :width="50"
-              class-name="object-cover"
-            />
-          </Avatar>
+          <LwpImage
+            :public-id="slotProps.data.banner_public_id"
+            :height="40"
+            :width="40"
+            class-name="w-10 h-10 object-cover rounded-full shadow-sm"
+            preview
+          />
+        </template>
+        <template v-else-if="col.field === 'type'" #body="slotProps">
+          <LwpStatusTag :value="slotProps.data[col.field]" />
         </template>
         <template v-else-if="col.field === 'title' || col.field === 'link'" #body="slotProps">
-          <div class="max-w-xs truncate" :title="slotProps.data[col.field]">
+          <div class="max-w-xs truncate font-medium" :title="slotProps.data[col.field]">
             {{ slotProps.data[col.field] }}
           </div>
         </template>

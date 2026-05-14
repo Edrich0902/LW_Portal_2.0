@@ -96,6 +96,20 @@ export const sbDeleteEvent = async (event: Event): Promise<SingleSupabaseRespons
   }
 }
 
+export const sbFetchAllEvents = async (): Promise<Event[]> => {
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .returns<Event[]>()
+
+  if (error) {
+    console.error(error.code, error.message)
+    return []
+  }
+
+  return data ?? []
+}
+
 const formatSearchText = (searchText: string, and = false) => {
   const split = searchText.split(' ')
   const quotedParts = split.map((part) => `'${part.trim()}'`)

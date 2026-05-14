@@ -10,15 +10,17 @@ const props = withDefaults(
     className?: string
     height?: number
     width?: number
+    preview?: boolean
   }>(),
   {
     publicId: 'samples/cloudinary-icon',
+    preview: false,
   },
 )
 
 const image = computed(() => {
   const img = cloudinary.image(props.publicId ?? 'samples/cloudinary-icon')
-  const resizer = Resize.fit()
+  const resizer = Resize.fill()
 
   if (props.height) resizer.height(props.height)
   if (props.width) resizer.width(props.width)
@@ -27,8 +29,19 @@ const image = computed(() => {
   img.resize(resizer)
   return img
 })
+
+const imageUrl = computed(() => {
+  return cloudinary.image(props.publicId ?? 'samples/cloudinary-icon').toURL()
+})
 </script>
 
 <template>
-  <AdvancedImage :cld-img="image" :class="className" />
+  <div :class="['overflow-hidden flex items-center justify-center', className]">
+    <Image v-if="preview" :src="imageUrl" class="w-full h-full" preview>
+      <template #image>
+        <AdvancedImage :cld-img="image" class="w-full h-full object-cover" />
+      </template>
+    </Image>
+    <AdvancedImage v-else :cld-img="image" class="w-full h-full object-cover" />
+  </div>
 </template>

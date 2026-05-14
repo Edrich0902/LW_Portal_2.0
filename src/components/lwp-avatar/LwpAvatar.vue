@@ -59,7 +59,12 @@ const toggle = (event: Event) => {
 
 <template>
   <Avatar class="cursor-pointer hover:opacity-75" shape="circle" size="large" aria-haspopup="true" aria-controls="overlay_menu" @click="toggle">
-    <LwpImage :public-id="props.user?.profile_public_id" :height="250" :width="250" class-name="object-cover" />
+    <LwpImage
+      :public-id="props.user?.profile_public_id"
+      :height="250"
+      :width="250"
+      class-name="w-full h-full object-cover"
+    />
   </Avatar>
   <Menu ref="menu" id="overlay_menu" :model="items" :popup="true" />
 </template>

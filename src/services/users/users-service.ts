@@ -32,6 +32,22 @@ export const sbQueryUsers = async (pagination: LwpPagination, sort: LwpSort, fil
   }
 }
 
+export const sbGetUsersCounts = async () => {
+  const [members, nonMembers, baptized, nonBaptized] = await Promise.all([
+    supabase.from('user_profile_view').select('*', { count: 'exact', head: true }).eq('is_member', true),
+    supabase.from('user_profile_view').select('*', { count: 'exact', head: true }).eq('is_member', false),
+    supabase.from('user_profile_view').select('*', { count: 'exact', head: true }).eq('is_baptized', true),
+    supabase.from('user_profile_view').select('*', { count: 'exact', head: true }).eq('is_baptized', false),
+  ])
+
+  return {
+    members: members.count ?? 0,
+    nonMembers: nonMembers.count ?? 0,
+    baptized: baptized.count ?? 0,
+    nonBaptized: nonBaptized.count ?? 0,
+  }
+}
+
 const formatSearchText = (searchText: string, and = false) => {
   const split = searchText.split(' ');
   const quotedParts = split.map(part => `'${part.trim()}'`);

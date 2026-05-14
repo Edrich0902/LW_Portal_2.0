@@ -59,5 +59,13 @@ Copy `.env.example` to `.env` and provide the following:
    - `@services` -> `src/services/`
    - `@lib` -> `src/lib/`
 
+## Engineering Standards (UI/UX)
+1. **Asynchronous Operations:** Every asynchronous operation (API calls, data fetching, file uploads) MUST have associated **Loading** and **Error** states.
+   - **Loading States:** Use `ProgressSpinner` or Skeleton components to provide immediate visual feedback. Never leave the user wondering if the app is still working.
+   - **Error States:** Implement graceful error handling. If an operation fails, notify the user via a `Toast` or an inline `Message` component.
+2. **Data Integrity:** Dashboards and summary views should prioritize total data accuracy. If pagination is used in management views, dashboard-specific service methods should be created to fetch non-paginated aggregates when necessary.
+3. **Interactive Feedback:** Use `hover` states, `active` states, and `ripple` effects to make the interface feel responsive and "alive." Ensure high contrast is maintained during interactions for accessibility.
+4. **Mobile Responsiveness:** All views must be designed with a responsive mindset, utilizing Tailwind's grid and flex utilities to ensure usability across mobile, tablet, and desktop.
+
 ## Authentication
 Authentication is managed via Supabase. The `auth.store.ts` handles the login state and provides a `initialise` method called in `main.ts` before the app mounts. Routes are protected using `meta.authed` in `router/index.ts`.

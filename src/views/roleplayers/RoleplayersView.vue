@@ -7,6 +7,9 @@ import moment from 'moment'
 import PageWrapper from '@components/page-wrapper/PageWrapper.vue'
 import { useRoleplayersStore } from '@stores/roleplayers/roleplayers.store.ts'
 import LwpImage from '@components/lwp-image/LwpImage.vue'
+import LwpEmptyState from '@components/lwp-empty-state/LwpEmptyState.vue'
+import LwpSkeletonTable from '@components/lwp-skeleton-table/LwpSkeletonTable.vue'
+import LwpStatusTag from '@components/lwp-status-tag/LwpStatusTag.vue'
 import RoleplayerModal from '@views/roleplayers/RoleplayerModal.vue'
 import type { Roleplayer } from '@/types/roleplayer/roleplayer.ts'
 
@@ -89,9 +92,12 @@ watch(searchText, (value) => {
         <InputText v-model="searchText" placeholder="Search roleplayers..." />
       </IconField>
     </template>
+
+    <LwpSkeletonTable v-if="roleplayersStore.status === Status.LOADING" :columns="5" :rows="10" />
+
     <DataTable
+      v-else
       ref="dt"
-      :loading="roleplayersStore.status === Status.LOADING"
       :value="roleplayersStore.data"
       :rows="roleplayersStore.pagination.limit"
       :first="roleplayersStore.pagination.from"
@@ -130,9 +136,14 @@ watch(searchText, (value) => {
         </div>
       </template>
       <template #empty>
-        <p class="flex flex-row justify-center items-center text-primary-900 dark:text-white">
-          No Roleplayers Found
-        </p>
+        <LwpEmptyState
+          title="No Roleplayers Found"
+          description="Try adjusting your search or add a new roleplayer to get started."
+        >
+          <template #action>
+            <Button label="Create Roleplayer" icon="pi pi-plus" @click="onAdd" />
+          </template>
+        </LwpEmptyState>
       </template>
       <Column
         v-for="col of roleplayersStore.tableColumns"
@@ -142,17 +153,19 @@ watch(searchText, (value) => {
         :sortable="true"
       >
         <template v-if="col.field === 'profile_public_id'" #body="slotProps">
-          <Avatar shape="circle" size="large">
-            <LwpImage
-              :public-id="slotProps.data.profile_public_id"
-              :height="50"
-              :width="50"
-              class-name="object-cover"
-            />
-          </Avatar>
+          <LwpImage
+            :public-id="slotProps.data.profile_public_id"
+            :height="40"
+            :width="40"
+            class-name="w-10 h-10 object-cover rounded-full shadow-sm"
+            preview
+          />
         </template>
-        <template v-else-if="col.field === 'fullname' || col.field === 'title'" #body="slotProps">
-          <div class="max-w-xs truncate" :title="slotProps.data[col.field]">
+        <template v-else-if="col.field === 'title'" #body="slotProps">
+          <LwpStatusTag :value="slotProps.data[col.field]" />
+        </template>
+        <template v-else-if="col.field === 'fullname'" #body="slotProps">
+          <div class="max-w-xs truncate font-medium" :title="slotProps.data[col.field]">
             {{ slotProps.data[col.field] }}
           </div>
         </template>

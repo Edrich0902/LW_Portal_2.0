@@ -86,9 +86,19 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
   <PageWrapper show-toolbar title="Vision & Mission Statements" class="flex flex-col">
     <div
       v-if="visionMissionStore.status === Status.LOADING && !isReady"
-      class="flex flex-col items-center justify-center"
+      class="flex flex-col gap-6 p-4"
     >
-      <ProgressSpinner style="width: 50px; height: 50px" />
+      <div class="flex flex-col gap-4">
+        <Skeleton width="10rem" height="2rem" />
+        <Skeleton width="100%" height="3rem" />
+        <Skeleton width="100%" height="8rem" />
+      </div>
+      <Divider />
+      <div class="flex flex-col gap-4">
+        <Skeleton width="10rem" height="2rem" />
+        <Skeleton width="100%" height="3rem" />
+        <Skeleton width="100%" height="8rem" />
+      </div>
     </div>
     <Form
       v-if="visionMissionStore.status === Status.OK && isReady"
@@ -96,7 +106,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent) => {
       :initialValues="initialValues"
       :resolver
       validateOnValueUpdate
-      class="flex flex-col gap-4 mt-2"
+      class="flex flex-col gap-4 mt-2 max-w-4xl mx-auto w-full p-4"
     >
       <div class="flex flex-col gap-4">
         <div class="text-xl font-semibold">Vision</div>

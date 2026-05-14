@@ -4,6 +4,9 @@ import { onBeforeMount, ref, watch } from 'vue'
 import { useUsersStore } from '@stores/users/users.store.ts'
 import { Status } from '@/types/status.ts'
 import LwpImage from '@components/lwp-image/LwpImage.vue'
+import LwpEmptyState from '@components/lwp-empty-state/LwpEmptyState.vue'
+import LwpSkeletonTable from '@components/lwp-skeleton-table/LwpSkeletonTable.vue'
+import LwpStatusTag from '@components/lwp-status-tag/LwpStatusTag.vue'
 import moment from 'moment'
 import type { DataTablePageEvent, DataTableSortEvent } from 'primevue'
 import { debounce } from 'lodash'
@@ -70,9 +73,12 @@ watch(searchText, (value) => {
         <InputText v-model="searchText" placeholder="Search users..." />
       </IconField>
     </template>
+
+    <LwpSkeletonTable v-if="userStore.status === Status.LOADING" :columns="6" :rows="10" />
+
     <DataTable
+      v-else
       ref="dt"
-      :loading="userStore.status === Status.LOADING"
       :value="userStore.data"
       :rows="userStore.pagination.limit"
       :first="userStore.pagination.from"
@@ -107,9 +113,10 @@ watch(searchText, (value) => {
         </div>
       </template>
       <template #empty>
-        <p class="flex flex-row justify-center items-center text-primary-900 dark:text-white">
-          No Users Found
-        </p>
+        <LwpEmptyState
+          title="No Users Found"
+          description="Try adjusting your search filters to find what you are looking for."
+        />
       </template>
       <Column
         v-for="col of userStore.tableColumns"
@@ -119,14 +126,13 @@ watch(searchText, (value) => {
         :sortable="true"
       >
         <template v-if="col.field === 'profile_public_id'" #body="slotProps">
-          <Avatar shape="circle" size="large">
-            <LwpImage
-              :public-id="slotProps.data.profile_public_id"
-              :height="50"
-              :width="50"
-              class-name="object-cover"
-            />
-          </Avatar>
+          <LwpImage
+            :public-id="slotProps.data.profile_public_id"
+            :height="40"
+            :width="40"
+            class-name="w-10 h-10 object-cover rounded-full shadow-sm"
+            preview
+          />
         </template>
         <template v-else-if="col.field === 'email' || col.field === 'address'" #body="slotProps">
           <div class="max-w-xs truncate" :title="slotProps.data[col.field]">
@@ -137,8 +143,7 @@ watch(searchText, (value) => {
           v-else-if="col.field === 'is_baptized' || col.field === 'is_member'"
           #body="slotProps"
         >
-          <i v-if="slotProps.data[col.field] === true" class="pi pi-check" style="color: green"></i>
-          <i v-else class="pi pi-times" style="color: red"></i>
+          <LwpStatusTag :value="slotProps.data[col.field] ? 'OK' : 'PENDING'" />
         </template>
         <template
           v-else-if="col.field === 'created_at' || col.field === 'updated_at'"
