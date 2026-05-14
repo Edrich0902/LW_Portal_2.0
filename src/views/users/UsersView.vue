@@ -86,6 +86,8 @@ watch(searchText, (value) => {
       paginator
       striped-rows
       scrollable
+      resizable-columns
+      column-resize-mode="fit"
       removableSort
       scroll-height="flex"
       class="flex-1"
@@ -125,6 +127,11 @@ watch(searchText, (value) => {
               class-name="object-cover"
             />
           </Avatar>
+        </template>
+        <template v-else-if="col.field === 'email' || col.field === 'address'" #body="slotProps">
+          <div class="max-w-xs truncate" :title="slotProps.data[col.field]">
+            {{ slotProps.data[col.field] }}
+          </div>
         </template>
         <template
           v-else-if="col.field === 'is_baptized' || col.field === 'is_member'"

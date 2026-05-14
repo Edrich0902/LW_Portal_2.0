@@ -105,6 +105,8 @@ watch(searchText, (value) => {
       paginator
       striped-rows
       scrollable
+      resizable-columns
+      column-resize-mode="fit"
       removableSort
       row-hover
       :row-class="() => 'cursor-pointer'"
@@ -138,7 +140,15 @@ watch(searchText, (value) => {
         :header="col.header"
         :sortable="true"
       >
-        <template v-if="col.field === 'created_at' || col.field === 'updated_at'" #body="slotProps">
+        <template v-if="col.field === 'description'" #body="slotProps">
+          <div class="max-w-xs truncate" :title="slotProps.data[col.field]">
+            {{ slotProps.data[col.field] }}
+          </div>
+        </template>
+        <template
+          v-else-if="col.field === 'created_at' || col.field === 'updated_at'"
+          #body="slotProps"
+        >
           {{
             slotProps.data[col.field]
               ? moment(slotProps.data[col.field]).format('DD MMM YYYY HH:mm:ss')

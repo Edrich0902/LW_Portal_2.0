@@ -106,6 +106,8 @@ watch(searchText, (value) => {
       paginator
       striped-rows
       scrollable
+      resizable-columns
+      column-resize-mode="fit"
       removableSort
       row-hover
       :row-class="() => 'cursor-pointer'"
@@ -148,6 +150,11 @@ watch(searchText, (value) => {
               class-name="object-cover"
             />
           </Avatar>
+        </template>
+        <template v-else-if="col.field === 'title' || col.field === 'link'" #body="slotProps">
+          <div class="max-w-xs truncate" :title="slotProps.data[col.field]">
+            {{ slotProps.data[col.field] }}
+          </div>
         </template>
         <template v-else-if="col.field === 'created_at' || col.field === 'updated_at'" #body="slotProps">
           {{
