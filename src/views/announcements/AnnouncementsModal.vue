@@ -8,6 +8,8 @@ import * as yup from 'yup'
 import { Status } from '@/types/status.ts'
 import { useAnnouncementsStore } from '@stores/announcements/announcements.store.ts'
 import { useConfirm } from 'primevue'
+import LwpImageUploader from '@components/lwp-image/LwpImageUploader.vue'
+import LwpImage from '@components/lwp-image/LwpImage.vue'
 
 const toast = useToast()
 const confirm = useConfirm()
@@ -25,13 +27,14 @@ const props = withDefaults(
 
 let initialValues: Partial<Announcement> = {}
 const isReady = ref(false)
+const imagePublicId = ref<string | undefined>(props.announcement?.image_public_id)
+const imageUrl = ref<string | undefined>(props.announcement?.image_url)
 
 onBeforeMount(() => {
   initialValues = {
     title: props.announcement?.title ?? '',
     body: props.announcement?.body ?? '',
     state: props.announcement?.state ?? AnnouncementState.PENDING,
-    image_public_id: props.announcement?.image_public_id ?? undefined,
   }
 
   isReady.value = true
@@ -69,16 +72,29 @@ const closeAndResetModal = (shouldRefresh: boolean = false) => {
   emit('close', shouldRefresh)
 }
 
+const onUpload = (info: { public_id: string; secure_url: string }) => {
+  imagePublicId.value = info.public_id
+  imageUrl.value = info.secure_url
+  toast.add({ severity: 'success', summary: 'Image uploaded', life: 2000 })
+}
+
 const onFormSubmit = async ({ valid, values }: FormSubmitEvent<Announcement>) => {
   if (!valid) {
     toast.add({ severity: 'error', summary: 'Some inputs are invalid', life: 2000 })
     return
   }
+
+  const payload = {
+    ...props.announcement,
+    ...values,
+    image_public_id: imagePublicId.value,
+    image_url: imageUrl.value,
+  }
   
   if (isUpdating.value) {
-    await store.updateAnnouncement({ ...props.announcement, ...values })
+    await store.updateAnnouncement(payload as Announcement)
   } else {
-    await store.createAnnouncement({ ...values, state: AnnouncementState.PENDING } as Announcement)
+    await store.createAnnouncement({ ...payload, state: AnnouncementState.PENDING } as Announcement)
   }
 
   if (store.modalStatus === Status.OK) {
@@ -113,6 +129,17 @@ const attemptDelete = (event: MouseEvent) => {
 
 <template>
   <Dialog v-model:visible="model" modal :header="modalTitle" class="w-1/3">
+    <div class="flex flex-col items-center gap-3 mb-4">
+      <div class="w-full h-40 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+        <LwpImage
+          :public-id="imagePublicId"
+          :height="300"
+          class-name="object-cover w-full h-full"
+        />
+      </div>
+      <LwpImageUploader label="Upload Announcement Image" @uploaded="onUpload" />
+    </div>
+
     <Form
       v-if="isReady"
       @submit="onFormSubmit"
