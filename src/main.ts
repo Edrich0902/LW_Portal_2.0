@@ -8,6 +8,13 @@ import { ConfirmationService, Ripple, ToastService } from 'primevue'
 import { useAuthStore } from '@stores/auth/auth.store.ts'
 import { pinia } from '@stores/pinia.store.ts'
 
+// Capture initial URL parameters before Supabase client consumes/clears them
+if (typeof window !== 'undefined') {
+  (window as any)._initialHref = window.location.href;
+  (window as any)._initialSearch = window.location.search;
+  (window as any)._initialHash = window.location.hash;
+}
+
 const app = createApp(App)
 
 // App Configuration

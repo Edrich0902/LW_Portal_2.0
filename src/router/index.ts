@@ -5,6 +5,8 @@ import { useToast } from 'primevue/usetoast'
 // VIEWS
 import LoginView from '@views/auth/LoginView.vue'
 import ForgotPasswordView from '@views/auth/ForgotPasswordView.vue'
+import AuthCallbackView from '@views/auth/AuthCallbackView.vue'
+import AuthResetPasswordView from '@views/auth/AuthResetPasswordView.vue'
 import DashboardView from '@views/dashboard/DashboardView.vue'
 import UsersView from '@views/users/UsersView.vue'
 import AnnouncementsView from '@views/announcements/AnnouncementsView.vue'
@@ -42,6 +44,18 @@ const router = createRouter({
       name: 'ForgotPassword',
       component: ForgotPasswordView,
       meta: handleMeta(false, false, 'Forgot Password'),
+    },
+    {
+      path: '/auth/callback',
+      name: 'AuthCallback',
+      component: AuthCallbackView,
+      meta: handleMeta(false, false, 'Authentication Callback'),
+    },
+    {
+      path: '/auth/reset-password',
+      name: 'AuthResetPassword',
+      component: AuthResetPasswordView,
+      meta: handleMeta(false, false, 'Reset Password Callback'),
     },
 
     // General

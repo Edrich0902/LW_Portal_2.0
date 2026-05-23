@@ -28,6 +28,14 @@ export const useAuthStore = defineStore('authStore', () => {
   })
 
   const initialise = async () => {
+    // Bypass administrative checks and prevent automatic sign-out on public auth routes
+    if (typeof window !== 'undefined' && 
+        (window.location.pathname === '/auth/reset-password' || 
+         window.location.pathname === '/auth/callback')) {
+      status.value = Status.OK
+      return
+    }
+
     status.value = Status.LOADING
     const {
       data: { user: supabaseUser },
