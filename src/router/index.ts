@@ -16,6 +16,7 @@ import EventsView from '@views/events/EventsView.vue'
 import SocialMediaView from '@views/social-media/SocialMediaView.vue'
 import ConnectServeView from '@views/connect-serve/ConnectServeView.vue'
 import VisionMissionView from '@views/vision-mission/VisionMissionView.vue'
+import TithesOfferingsView from '@views/tithes-offerings/TithesOfferingsView.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -114,6 +115,12 @@ const router = createRouter({
       name: 'ConnectServe',
       component: ConnectServeView,
       meta: handleMeta(true, true, 'Connect & Serve'),
+    },
+    {
+      path: '/tithes-offerings',
+      name: 'TithesOfferings',
+      component: TithesOfferingsView,
+      meta: handleMeta(true, true, 'Tithes & Offerings'),
     },
   ],
 })

@@ -28,6 +28,7 @@
         { label: 'Events', to: '/events', icon: 'pi pi-calendar' },
         { label: 'Social Media', to: '/social-media', icon: 'pi pi-hashtag' },
         { label: 'Connect & Serve', to: '/connect-serve', icon: 'pi pi-users' },
+        { label: 'Tithes & Offerings', to: '/tithes-offerings', icon: 'pi pi-wallet' },
       ]
     },
     {
