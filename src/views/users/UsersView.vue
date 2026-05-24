@@ -8,12 +8,17 @@ import LwpEmptyState from '@components/lwp-empty-state/LwpEmptyState.vue'
 import LwpSkeletonTable from '@components/lwp-skeleton-table/LwpSkeletonTable.vue'
 import LwpStatusTag from '@components/lwp-status-tag/LwpStatusTag.vue'
 import moment from 'moment'
-import type { DataTablePageEvent, DataTableSortEvent } from 'primevue'
+import type { DataTablePageEvent, DataTableRowClickEvent, DataTableSortEvent } from 'primevue'
 import { debounce } from 'lodash'
+import type { User } from '@/types/user/user.ts'
+import UserRoleModal from '@views/users/UserRoleModal.vue'
+import { formatRoleLabel } from '@lib/role.utils.ts'
 
 const userStore = useUsersStore()
 
-const dt = ref();
+const dt = ref()
+const showModal = ref(false)
+const selectedItem = ref<User>()
 
 onBeforeMount(async () => {
   await userStore.initUsers()
@@ -53,6 +58,11 @@ const onSort = async (event: DataTableSortEvent) => {
   })
 }
 
+const onRowClick = (event: DataTableRowClickEvent) => {
+  selectedItem.value = event.data as User
+  showModal.value = true
+}
+
 const onRefresh = async () => {
   await userStore.initUsers()
 }
@@ -64,6 +74,10 @@ const exportCSV = () => {
 watch(searchText, (value) => {
   onSearch(value)
 })
+
+const handleModalClose = async (refresh = false) => {
+  if (refresh) await onRefresh()
+}
 </script>
 <template>
   <PageWrapper show-toolbar title="Users" class="flex flex-col">
@@ -87,6 +101,7 @@ watch(searchText, (value) => {
       :sortOrder="userStore.sort.order === 'asc' ? 1 : -1"
       @page="onPage"
       @sort="onSort"
+      @row-click="onRowClick"
       data-key="id"
       lazy
       paginator
@@ -95,6 +110,8 @@ watch(searchText, (value) => {
       resizable-columns
       column-resize-mode="fit"
       removableSort
+      row-hover
+      :row-class="() => 'cursor-pointer'"
       scroll-height="flex"
       class="flex-1"
     >
@@ -139,6 +156,9 @@ watch(searchText, (value) => {
             {{ slotProps.data[col.field] }}
           </div>
         </template>
+        <template v-else-if="col.field === 'role'" #body="slotProps">
+          <LwpStatusTag :value="formatRoleLabel(slotProps.data.role)" />
+        </template>
         <template
           v-else-if="col.field === 'is_baptized' || col.field === 'is_member'"
           #body="slotProps"
@@ -157,5 +177,12 @@ watch(searchText, (value) => {
         </template>
       </Column>
     </DataTable>
+
+    <UserRoleModal
+      :key="JSON.stringify(selectedItem)"
+      v-model:visible="showModal"
+      :user="selectedItem"
+      @close="handleModalClose"
+    />
   </PageWrapper>
 </template>

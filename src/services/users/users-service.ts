@@ -1,57 +1,64 @@
-import type { LwpPagination } from '@/types/lwpPagination.ts'
-import type { LwpSort } from '@/types/lwpSort.ts'
-import type { LwpFilter } from '@/types/lwpFilter.ts'
 import type { User } from '@/types/user/user.ts'
-import type { SupabaseResponse } from '@/types/supabase-response.ts'
+import type { SingleSupabaseResponse, SupabaseResponse } from '@/types/supabase-response.ts'
 import supabase from '@lib/supabaseClient.ts'
 
-export const sbQueryUsers = async (pagination: LwpPagination, sort: LwpSort, filter?: LwpFilter): Promise<SupabaseResponse<User>> => {
-  const query = supabase.from('user_profile_view').select('*', {count: "exact"});
-
-  if (filter) {
-    if (filter.searchText.trim()) query.textSearch('first_name', formatSearchText(filter.searchText), { type: 'websearch', config: 'english' });
-  }
-
-  const { data, error, count } = await query.range(pagination.from, pagination.to)
-    .order(sort.column, {ascending: sort.order == 'asc'})
-    .returns<User[]>();
+export const sbFetchAdminUsers = async (): Promise<SupabaseResponse<User>> => {
+  const { data, error } = await supabase.rpc('get_admin_users')
 
   if (error) {
-    console.error(error.code, error.message);
+    console.error(error.code, error.message)
     return {
       data: [],
-      error: error,
-      count: count ?? 0,
+      error,
+      count: 0,
     }
   }
 
   return {
-    data: data,
+    data: (data as User[]) ?? [],
     error: undefined,
-    count: count ?? 0,
+    count: (data as User[])?.length ?? 0,
   }
 }
 
-export const sbGetUsersCounts = async () => {
-  const [members, nonMembers, baptized, nonBaptized] = await Promise.all([
-    supabase.from('user_profile_view').select('*', { count: 'exact', head: true }).eq('is_member', true),
-    supabase.from('user_profile_view').select('*', { count: 'exact', head: true }).eq('is_member', false),
-    supabase.from('user_profile_view').select('*', { count: 'exact', head: true }).eq('is_baptized', true),
-    supabase.from('user_profile_view').select('*', { count: 'exact', head: true }).eq('is_baptized', false),
-  ])
+export const sbGetSignedInAdminUser = async (userId: string): Promise<SingleSupabaseResponse<User>> => {
+  const { data, error } = await supabase.rpc('get_admin_user_profile', {
+    target_user_id: userId,
+  })
+
+  if (error) {
+    console.error(error.code, error.message)
+    return {
+      data: null,
+      error,
+    }
+  }
 
   return {
-    members: members.count ?? 0,
-    nonMembers: nonMembers.count ?? 0,
-    baptized: baptized.count ?? 0,
-    nonBaptized: nonBaptized.count ?? 0,
+    data: ((data as User[]) ?? [])[0] ?? null,
+    error: undefined,
   }
 }
 
-const formatSearchText = (searchText: string, and = false) => {
-  const split = searchText.split(' ');
-  const quotedParts = split.map(part => `'${part.trim()}'`);
+export const sbSetUserRole = async (
+  userId: string,
+  roleId: string,
+): Promise<SingleSupabaseResponse<null>> => {
+  const { error } = await supabase.rpc('set_user_role', {
+    target_user_id: userId,
+    target_role_id: roleId,
+  })
 
-  if (and) return quotedParts.join(' & ')
-  else return quotedParts.join(' | ')
+  if (error) {
+    console.error(error.code, error.message)
+    return {
+      data: null,
+      error,
+    }
+  }
+
+  return {
+    data: null,
+    error: undefined,
+  }
 }

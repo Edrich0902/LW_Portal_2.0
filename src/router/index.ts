@@ -9,6 +9,7 @@ import AuthCallbackView from '@views/auth/AuthCallbackView.vue'
 import AuthResetPasswordView from '@views/auth/AuthResetPasswordView.vue'
 import DashboardView from '@views/dashboard/DashboardView.vue'
 import UsersView from '@views/users/UsersView.vue'
+import RolesView from '@views/roles/RolesView.vue'
 import AnnouncementsView from '@views/announcements/AnnouncementsView.vue'
 import SermonsView from '@views/sermons/SermonsView.vue'
 import RoleplayersView from '@views/roleplayers/RoleplayersView.vue'
@@ -72,6 +73,12 @@ const router = createRouter({
       name: 'Users',
       component: UsersView,
       meta: handleMeta(true, true, 'User Management'),
+    },
+    {
+      path: '/roles',
+      name: 'Roles',
+      component: RolesView,
+      meta: handleMeta(true, true, 'Role Management'),
     },
     {
       path: '/announcements',

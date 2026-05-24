@@ -16,6 +16,7 @@
       items: [
         { label: 'Dashboard', to: '/dashboard', icon: 'pi pi-objects-column', },
         { label: 'Users', to: '/users', icon: 'pi pi-user', },
+        { label: 'Roles', to: '/roles', icon: 'pi pi-id-card', },
         { label: 'Announcements', to: '/announcements', icon: 'pi pi-megaphone', },
       ]
     },

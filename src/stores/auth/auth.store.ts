@@ -5,6 +5,7 @@ import { Status } from '@/types/status.ts'
 import { type User as LwpUser, UserRole } from '@/types/user/user.ts'
 import supabase from '@lib/supabaseClient.ts'
 import { supabaseAuth, supabaseSignOut } from '@services/auth/auth-service.ts'
+import { sbGetSignedInAdminUser } from '@services/users/users-service.ts'
 import { useToast } from 'primevue/usetoast'
 
 export const useAuthStore = defineStore('authStore', () => {
@@ -130,11 +131,7 @@ export const useAuthStore = defineStore('authStore', () => {
   }
 
   const loadSignedInUser = async (userId: string): Promise<boolean> => {
-    const { data, error } = await supabase
-      .from('user_profile_view')
-      .select('*')
-      .eq('id', userId)
-      .single<LwpUser>()
+    const { data, error } = await sbGetSignedInAdminUser(userId)
 
     if (error || !data) {
       return false
