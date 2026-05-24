@@ -17,6 +17,7 @@ import SocialMediaView from '@views/social-media/SocialMediaView.vue'
 import ConnectServeView from '@views/connect-serve/ConnectServeView.vue'
 import VisionMissionView from '@views/vision-mission/VisionMissionView.vue'
 import TithesOfferingsView from '@views/tithes-offerings/TithesOfferingsView.vue'
+import PrayerRequestsView from '@views/prayer-requests/PrayerRequestsView.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -121,6 +122,12 @@ const router = createRouter({
       name: 'TithesOfferings',
       component: TithesOfferingsView,
       meta: handleMeta(true, true, 'Tithes & Offerings'),
+    },
+    {
+      path: '/prayer-requests',
+      name: 'PrayerRequests',
+      component: PrayerRequestsView,
+      meta: handleMeta(true, true, 'Prayer Requests'),
     },
   ],
 })
