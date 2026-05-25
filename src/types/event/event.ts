@@ -14,6 +14,7 @@ export type Event = {
     end_date?: string;
     banner_url?: string;
     banner_public_id?: string;
+    capacity?: number;
     created_at?: string;
     updated_at?: string;
 }

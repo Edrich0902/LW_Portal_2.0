@@ -47,6 +47,7 @@ onBeforeMount(() => {
     time: props.eventItem?.time ?? '',
     start_date: props.eventItem?.start_date ? new Date(props.eventItem.start_date) : undefined,
     end_date: props.eventItem?.end_date ? new Date(props.eventItem.end_date) : undefined,
+    capacity: props.eventItem?.capacity ?? null,
   }
 
   isReady.value = true
@@ -268,6 +269,16 @@ const weekdays = ref(Object.values(Weekday).map(v => ({ label: v, value: v })))
           }}</Message>
         </FormField>
       </div>
+
+      <FormField name="capacity" #default="slotProps" class="w-full">
+        <FloatLabel variant="on">
+          <InputNumber v-model="slotProps.value" :min="1" fluid />
+          <label for="capacity">Max Attendees (optional)</label>
+        </FloatLabel>
+        <Message v-if="slotProps.invalid" severity="error" size="small" variant="simple">{{
+          slotProps.error?.message
+        }}</Message>
+      </FormField>
 
       <FormField name="description" #default="slotProps" class="w-full">
         <FloatLabel variant="on">

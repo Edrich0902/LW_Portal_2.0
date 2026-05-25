@@ -27,6 +27,7 @@
         { label: 'Vision & Mission', to: '/vision-mission', icon: 'pi pi-lightbulb' },
         { label: 'Roleplayers', to: '/roleplayers', icon: 'pi pi-users' },
         { label: 'Events', to: '/events', icon: 'pi pi-calendar' },
+        { label: 'Event Overview', to: '/event-overview', icon: 'pi pi-chart-bar' },
         { label: 'Social Media', to: '/social-media', icon: 'pi pi-hashtag' },
         { label: 'Connect & Serve', to: '/connect-serve', icon: 'pi pi-users' },
         { label: 'Tithes & Offerings', to: '/tithes-offerings', icon: 'pi pi-wallet' },

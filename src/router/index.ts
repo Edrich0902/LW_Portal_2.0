@@ -19,6 +19,7 @@ import ConnectServeView from '@views/connect-serve/ConnectServeView.vue'
 import VisionMissionView from '@views/vision-mission/VisionMissionView.vue'
 import TithesOfferingsView from '@views/tithes-offerings/TithesOfferingsView.vue'
 import PrayerRequestsView from '@views/prayer-requests/PrayerRequestsView.vue'
+import EventOverviewView from '@views/events/EventOverviewView.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -135,6 +136,12 @@ const router = createRouter({
       name: 'PrayerRequests',
       component: PrayerRequestsView,
       meta: handleMeta(true, true, 'Prayer Requests'),
+    },
+    {
+      path: '/event-overview',
+      name: 'EventOverview',
+      component: EventOverviewView,
+      meta: handleMeta(true, true, 'Event Overview'),
     },
   ],
 })
