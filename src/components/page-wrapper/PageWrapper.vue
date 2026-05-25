@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '@stores/auth/auth.store.ts'
 import LwpAvatar from '@components/lwp-avatar/LwpAvatar.vue'
+import LwpThemeToggle from '@components/theme-toggle/LwpThemeToggle.vue'
 
 defineProps<{
   showToolbar?: boolean
@@ -16,6 +17,7 @@ const auth = useAuthStore()
       <div class="text-lg">{{ title ?? '' }}</div>
       <div class="flex flex-row items-center gap-x-2">
         <slot name="search" />
+        <LwpThemeToggle />
         <LwpAvatar v-if="auth.userProfile" :user="auth.userProfile" />
       </div>
     </div>

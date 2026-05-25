@@ -6,6 +6,7 @@ import App from './App.vue'
 import router from './router'
 import { ConfirmationService, Ripple, ToastService } from 'primevue'
 import { useAuthStore } from '@stores/auth/auth.store.ts'
+import { useThemeStore } from '@stores/theme/theme.store.ts'
 import { pinia } from '@stores/pinia.store.ts'
 
 // Capture initial URL parameters before Supabase client consumes/clears them
@@ -41,7 +42,7 @@ app.use(PrimeVue, {
         }
       },
       options: {
-        darkModeSelector: 'system',
+        darkModeSelector: '.dark',
       },
     },
   })
@@ -51,6 +52,10 @@ app.use(PrimeVue, {
 
 // State management
 app.use(pinia)
+
+// Apply persisted theme before first render
+const themeStore = useThemeStore()
+themeStore.applyTheme()
 
 // Initialise auth
 const authStore = useAuthStore()
