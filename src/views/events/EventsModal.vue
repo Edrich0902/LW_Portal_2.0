@@ -21,9 +21,11 @@ const props = withDefaults(
   defineProps<{
     visible: boolean
     eventItem?: Event
+    defaultEventData?: Partial<Event>
   }>(),
   {
     eventItem: undefined,
+    defaultEventData: undefined,
   },
 )
 
@@ -38,16 +40,17 @@ const bannerPublicId = ref<string | undefined>(props.eventItem?.banner_public_id
 const bannerUrl = ref<string | undefined>(props.eventItem?.banner_url)
 
 onBeforeMount(() => {
+  const seed = props.eventItem ?? props.defaultEventData
   initialValues = {
-    title: props.eventItem?.title ?? '',
-    description: props.eventItem?.description ?? '',
-    category: props.eventItem?.category ?? EventCategory.GENERAL,
-    type: props.eventItem?.type ?? EventType.WEEKLY,
-    day: props.eventItem?.day ?? Weekday.SUNDAY,
-    time: props.eventItem?.time ?? '',
-    start_date: props.eventItem?.start_date ? new Date(props.eventItem.start_date) : undefined,
-    end_date: props.eventItem?.end_date ? new Date(props.eventItem.end_date) : undefined,
-    capacity: props.eventItem?.capacity ?? null,
+    title: seed?.title ?? '',
+    description: seed?.description ?? '',
+    category: seed?.category ?? EventCategory.GENERAL,
+    type: seed?.type ?? EventType.WEEKLY,
+    day: seed?.day ?? Weekday.SUNDAY,
+    time: seed?.time ?? '',
+    start_date: seed?.start_date ? new Date(seed.start_date) : undefined,
+    end_date: seed?.end_date ? new Date(seed.end_date) : undefined,
+    capacity: seed?.capacity ?? null,
   }
 
   isReady.value = true

@@ -78,10 +78,12 @@ A searchable library of songs used in worship — lyrics, chords, key, CCLI numb
 ## Phase 3 — Operations & Communications
 
 ### 3.1 Announcement Scheduling
-Set a `publish_at` datetime on an announcement so it goes live automatically. Currently announcements are manually pushed — this removes the Sunday morning scramble.
-- Add `publish_at` field to `Announcement`
-- Supabase Edge Function (or cron) flips state from `pending → sent` at the right time
-- Scheduled announcements shown clearly in the list with a countdown
+Set a `scheduled_at` datetime on an announcement so it goes live automatically. Currently announcements are manually pushed — this removes the Sunday morning scramble.
+- Add optional `scheduled_at` timestamp column to the `announcements` table
+- Enable `pg_cron` in Supabase and schedule a per-minute SQL job: `update announcements set state = 'sent' where state = 'pending' and scheduled_at <= now()`
+- Portal: datetime picker in the announcement modal alongside the existing "Send Now" action; scheduled announcements shown in the list with their target time
+- Mobile app requires no changes — it already filters to `state = 'sent'` only
+- If push notifications are added later (3.3), the same cron job can trigger a webhook → Edge Function → FCM push
 
 ### 3.2 WhatsApp / SMS Integration
 Send announcements directly from the portal via WhatsApp Business API or an SMS gateway (e.g. Twilio, Africa's Talking). Meets members where they actually are.

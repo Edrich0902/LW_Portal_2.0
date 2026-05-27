@@ -28,6 +28,7 @@ declare module 'vue' {
     LwpAvatar: typeof import('./src/components/lwp-avatar/LwpAvatar.vue')['default']
     LwpDrawer: typeof import('./src/components/drawer/LwpDrawer.vue')['default']
     LwpEmptyState: typeof import('./src/components/lwp-empty-state/LwpEmptyState.vue')['default']
+    LwpEventCalendar: typeof import('./src/components/lwp-event-calendar/LwpEventCalendar.vue')['default']
     LwpImage: typeof import('./src/components/lwp-image/LwpImage.vue')['default']
     LwpImageUploader: typeof import('./src/components/lwp-image/LwpImageUploader.vue')['default']
     LwpSkeletonTable: typeof import('./src/components/lwp-skeleton-table/LwpSkeletonTable.vue')['default']
@@ -53,5 +54,6 @@ declare module 'vue' {
   }
   export interface ComponentCustomProperties {
     Ripple: typeof import('primevue/ripple')['default']
+    Tooltip: typeof import('primevue/tooltip')['default']
   }
 }

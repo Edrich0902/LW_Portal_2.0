@@ -79,6 +79,30 @@ export const sbUpdateEvent = async (event: Event): Promise<SingleSupabaseRespons
   }
 }
 
+export const sbUpdateEventFields = async (
+  id: string,
+  fields: Partial<Pick<Event, 'start_date' | 'end_date' | 'time' | 'day'>>,
+): Promise<SingleSupabaseResponse<Event>> => {
+  const { data, error } = await supabase
+    .from('events')
+    .update(fields)
+    .eq('id', id)
+    .single<Event>()
+
+  if (error) {
+    console.error(error.code, error.message)
+    return {
+      data: null,
+      error: error,
+    }
+  }
+
+  return {
+    data: data,
+    error: undefined,
+  }
+}
+
 export const sbDeleteEvent = async (event: Event): Promise<SingleSupabaseResponse<Event>> => {
   const { data, error } = await supabase.from('events').delete().eq('id', event.id).single<Event>()
 

@@ -9,8 +9,10 @@ import type { LwpSort } from '@/types/lwpSort.ts'
 import {
   sbCreateEvent,
   sbDeleteEvent,
+  sbFetchAllEvents,
   sbQueryEvents,
   sbUpdateEvent,
+  sbUpdateEventFields,
 } from '@services/events/events-service.ts'
 
 export const useEventsStore = defineStore('eventsStore', () => {
@@ -18,6 +20,9 @@ export const useEventsStore = defineStore('eventsStore', () => {
   const status = ref<Status>(Status.UNINITIALIZED);
   const modalStatus = ref<Status>(Status.OK);
   const data = ref<Event[]>([]);
+  const calendarEvents = ref<Event[]>([]);
+  const calendarStatus = ref<Status>(Status.UNINITIALIZED);
+  const rescheduleStatus = ref<Status>(Status.OK);
   const filter = ref<LwpFilter>({
     searchText: '',
   })
@@ -102,6 +107,36 @@ export const useEventsStore = defineStore('eventsStore', () => {
     }
   }
 
+  const loadCalendarEvents = async () => {
+    if (calendarStatus.value === Status.OK) return
+    calendarStatus.value = Status.LOADING
+    const result = await sbFetchAllEvents()
+    calendarEvents.value = result
+    calendarStatus.value = result.length === 0 ? Status.EMPTY : Status.OK
+  }
+
+  const rescheduleEvent = async (
+    id: string,
+    fields: Partial<Pick<Event, 'start_date' | 'end_date' | 'time' | 'day'>>,
+  ): Promise<boolean> => {
+    rescheduleStatus.value = Status.LOADING
+    const response = await sbUpdateEventFields(id, fields)
+
+    if (response.error !== undefined) {
+      rescheduleStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Error Rescheduling Event', life: 2000 })
+      return false
+    }
+
+    const fresh = await sbFetchAllEvents()
+    calendarEvents.value = fresh
+    await queryEvents()
+
+    rescheduleStatus.value = Status.OK
+    toast.add({ severity: 'success', summary: 'Event Rescheduled', life: 2000 })
+    return true
+  }
+
   const pageEvents = async (updatedPagination: LwpPagination) => {
     pagination.value = updatedPagination
     await queryEvents()
@@ -128,6 +163,9 @@ export const useEventsStore = defineStore('eventsStore', () => {
     status,
     modalStatus,
     data,
+    calendarEvents,
+    calendarStatus,
+    rescheduleStatus,
     filter,
     sort,
     pagination,
@@ -139,6 +177,8 @@ export const useEventsStore = defineStore('eventsStore', () => {
     deleteEvent,
     pageEvents,
     sortEvents,
-    filterEvents
+    filterEvents,
+    loadCalendarEvents,
+    rescheduleEvent,
   }
 })
