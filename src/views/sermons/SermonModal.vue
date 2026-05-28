@@ -110,7 +110,7 @@ const attemptDelete = (event: MouseEvent) => {
 </script>
 
 <template>
-  <Dialog v-model:visible="model" modal :header="modalTitle" class="w-1/4">
+  <Dialog v-model:visible="model" modal :header="modalTitle" class="w-full max-w-lg mx-4">
     <Form
       v-if="isReady"
       @submit="onFormSubmit"
@@ -159,7 +159,7 @@ const attemptDelete = (event: MouseEvent) => {
         }}</Message>
       </FormField>
 
-      <div class="flex items-center justify-between w-full mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+      <div class="flex items-center justify-between w-full mt-4 pt-4 border-t border-surface-200 dark:border-surface-700">
         <div>
           <Button
             v-if="isUpdating"

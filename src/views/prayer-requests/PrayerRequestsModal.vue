@@ -55,7 +55,7 @@ const displayName = computed(() => {
 </script>
 
 <template>
-  <Dialog v-model:visible="model" modal header="Prayer Request" class="w-[42rem] max-w-[95vw]">
+  <Dialog v-model:visible="model" modal header="Prayer Request" class="w-full max-w-2xl mx-4">
     <div v-if="prayerRequest" class="flex flex-col gap-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>

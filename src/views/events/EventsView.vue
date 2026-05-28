@@ -28,7 +28,6 @@ const selectedItem = ref<Event>()
 const defaultEventData = ref<Partial<Event> | undefined>(undefined)
 const modalOpenCount = ref<number>(0)
 const viewMode = ref<ViewMode>('table')
-const viewPopover = ref()
 
 const rsvpSummaryMap = computed<Map<string, EventRsvpSummaryRow>>(
   () => new Map(eventOverviewStore.summaries.map((s) => [s.id, s])),
@@ -38,10 +37,6 @@ const viewOptions: Array<{ value: ViewMode; icon: string; label: string }> = [
   { value: 'table', icon: 'pi pi-list', label: 'Table' },
   { value: 'calendar', icon: 'pi pi-calendar', label: 'Calendar' },
 ]
-
-const currentViewIcon = computed(
-  () => viewOptions.find((o) => o.value === viewMode.value)?.icon ?? 'pi pi-list',
-)
 
 onBeforeMount(async () => {
   await eventsStore.initEvents()
@@ -121,7 +116,6 @@ const handleModalClose = (refresh = false) => {
 }
 
 const selectView = async (mode: ViewMode) => {
-  viewPopover.value.hide()
   viewMode.value = mode
   if (mode === 'calendar') {
     await Promise.all([eventsStore.loadCalendarEvents(), eventOverviewStore.loadSummaries()])
@@ -139,32 +133,21 @@ watch(searchText, (value) => onSearch(value))
         <InputText v-model="searchText" placeholder="Search events..." />
       </IconField>
 
-      <!-- View toggle — matches theme toggle pattern -->
-      <Button
-        :icon="currentViewIcon"
-        severity="secondary"
-        text
-        rounded
+      <!-- View toggle — always-visible segmented control -->
+      <SelectButton
+        :model-value="viewMode"
+        :options="viewOptions"
+        option-value="value"
+        data-key="value"
+        :allow-empty="false"
         aria-label="Switch view"
-        @click="viewPopover.toggle($event)"
-      />
-      <Popover ref="viewPopover">
-        <div class="flex flex-col gap-0.5 min-w-36">
-          <p class="text-xs text-surface-400 font-semibold uppercase px-2 pt-1 pb-2">View</p>
-          <button
-            v-for="option in viewOptions"
-            :key="option.value"
-            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm w-full text-left transition-colors cursor-pointer"
-            :class="viewMode === option.value
-              ? 'bg-primary/10 text-primary font-semibold'
-              : 'hover:bg-surface-100 dark:hover:bg-surface-800'"
-            @click="selectView(option.value)"
-          >
-            <i :class="option.icon" class="text-sm" />
-            {{ option.label }}
-          </button>
-        </div>
-      </Popover>
+        @update:model-value="selectView"
+      >
+        <template #option="slotProps">
+          <i :class="slotProps.option.icon" class="text-sm" />
+          <span class="ml-1.5">{{ slotProps.option.label }}</span>
+        </template>
+      </SelectButton>
     </template>
 
     <!-- TABLE VIEW -->

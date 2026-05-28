@@ -94,7 +94,7 @@ const saveRole = async () => {
 </script>
 
 <template>
-  <Dialog v-model:visible="model" modal header="Update User Role" class="w-full max-w-xl">
+  <Dialog v-model:visible="model" modal header="Update User Role" class="w-full max-w-xl mx-4">
     <div class="flex flex-col gap-5 p-2">
       <div class="flex items-center gap-4">
         <LwpImage

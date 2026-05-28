@@ -127,13 +127,13 @@ const attemptDelete = (event: MouseEvent) => {
 </script>
 
 <template>
-  <Dialog v-model:visible="model" modal :header="modalTitle" class="w-1/3">
+  <Dialog v-model:visible="model" modal :header="modalTitle" class="w-full max-w-lg mx-4">
     <div class="flex flex-col items-center gap-4 mb-6">
       <LwpImage
         :public-id="profilePublicId"
         :height="200"
         :width="200"
-        class-name="w-40 h-40 object-cover rounded-full shadow-lg border-4 border-white dark:border-gray-800"
+        class-name="w-40 h-40 object-cover rounded-full shadow-lg border-4 border-surface-0 dark:border-surface-800"
       />
       <LwpImageUploader label="Change Profile Picture" @uploaded="onUpload" />
     </div>
@@ -176,7 +176,7 @@ const attemptDelete = (event: MouseEvent) => {
         }}</Message>
       </FormField>
 
-      <div class="flex items-center justify-between w-full mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+      <div class="flex items-center justify-between w-full mt-4 pt-4 border-t border-surface-200 dark:border-surface-700">
         <div>
           <Button
             v-if="isUpdating"

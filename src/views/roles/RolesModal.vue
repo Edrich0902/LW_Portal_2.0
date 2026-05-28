@@ -65,7 +65,7 @@ watch(
 </script>
 
 <template>
-  <Dialog v-model:visible="model" modal header="Create Role" class="w-full max-w-lg">
+  <Dialog v-model:visible="model" modal header="Create Role" class="w-full max-w-lg mx-4">
     <Form
       @submit="onFormSubmit"
       :initialValues="initialValues"

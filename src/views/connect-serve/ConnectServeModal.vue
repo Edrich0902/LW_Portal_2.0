@@ -139,7 +139,7 @@ const groupTypes = ref([
 </script>
 
 <template>
-  <Dialog v-model:visible="model" modal :header="modalTitle" class="w-1/3">
+  <Dialog v-model:visible="model" modal :header="modalTitle" class="w-full max-w-xl mx-4">
     <div class="flex flex-col items-center gap-3 mb-4">
       <LwpImage
         :public-id="bannerPublicId"
@@ -215,7 +215,7 @@ const groupTypes = ref([
         }}</Message>
       </FormField>
 
-      <div class="flex items-center justify-between w-full mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+      <div class="flex items-center justify-between w-full mt-4 pt-4 border-t border-surface-200 dark:border-surface-700">
         <div>
           <Button
             v-if="isUpdating"

@@ -346,13 +346,22 @@ const calendarOptions = computed<CalendarOptions>(() => ({
   allDaySlot: false,
   scrollTime: '07:00:00',
   slotDuration: '00:30:00',
+  slotLabelInterval: '01:00:00',
+  dayMaxEvents: 3,
+  businessHours: {
+    daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
+    startTime: '08:00',
+    endTime: '17:00',
+  },
   selectable: false,
   height: 'auto',
 }))
 </script>
 
 <template>
-  <div class="lwp-calendar p-2">
+  <div
+    class="lwp-calendar p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 shadow-sm"
+  >
     <FullCalendar :options="calendarOptions">
       <template #eventContent="arg">
         <div class="flex items-center gap-1 min-w-0 w-full overflow-hidden">
@@ -433,10 +442,16 @@ const calendarOptions = computed<CalendarOptions>(() => ({
   color: #fff;
   cursor: pointer;
   overflow: hidden;
+  transition:
+    box-shadow 0.12s ease,
+    transform 0.12s ease,
+    filter 0.12s ease;
 }
 
 .lwp-calendar .fc-event:hover {
-  filter: brightness(0.92);
+  filter: brightness(0.95);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  transform: translateY(-1px);
 }
 
 .lwp-calendar .fc-event-main,
@@ -524,6 +539,138 @@ const calendarOptions = computed<CalendarOptions>(() => ({
   background: transparent;
 }
 
+/* ---------- Toolbar — ghost nav buttons, segmented view switcher ---------- */
+.lwp-calendar .fc-toolbar.fc-header-toolbar {
+  margin-bottom: 1.25rem;
+}
+
+.lwp-calendar .fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.lwp-calendar .fc .fc-button {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--p-surface-600);
+  box-shadow: none;
+  font-weight: 500;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.lwp-calendar .fc .fc-button:hover {
+  background: var(--p-surface-100);
+  color: var(--p-surface-800);
+}
+
+.lwp-calendar .fc .fc-button:focus,
+.lwp-calendar .fc .fc-button:focus-visible {
+  box-shadow: none;
+  outline: none;
+}
+
+/* Group view-switch buttons into a segmented control */
+.lwp-calendar .fc .fc-button-group {
+  background: var(--p-surface-100);
+  border-radius: 10px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.lwp-calendar .fc .fc-button-group .fc-button {
+  border-radius: 8px;
+}
+
+.lwp-calendar .fc .fc-button-group .fc-button:hover {
+  background: var(--p-surface-200);
+}
+
+/* Active view — filled primary */
+.lwp-calendar .fc .fc-button-primary:not(:disabled).fc-button-active,
+.lwp-calendar .fc .fc-button-primary:not(:disabled):active {
+  background: var(--p-primary-500);
+  border-color: var(--p-primary-500);
+  color: #fff;
+}
+
+.lwp-calendar .fc .fc-button-primary:disabled {
+  background: transparent;
+  border-color: transparent;
+  color: var(--p-surface-300);
+  opacity: 1;
+}
+
+/* ---------- Weekday header cells ---------- */
+.lwp-calendar .fc-col-header-cell-cushion {
+  display: inline-block;
+  padding: 8px 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--p-surface-400);
+}
+
+/* ---------- Month grid — weekend tint + other-month dimming ---------- */
+.lwp-calendar .fc-daygrid-day.fc-day-sat,
+.lwp-calendar .fc-daygrid-day.fc-day-sun {
+  background: color-mix(in srgb, var(--p-surface-100) 55%, transparent);
+}
+
+.lwp-calendar .fc-daygrid-day.fc-day-other {
+  background: color-mix(in srgb, var(--p-surface-100) 30%, transparent);
+}
+
+.lwp-calendar .fc-day-other .fc-daygrid-day-number {
+  opacity: 0.4;
+}
+
+/* ---------- "+N more" link & day popover ---------- */
+.lwp-calendar .fc-daygrid-more-link {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--p-primary-500);
+  padding: 1px 4px;
+}
+
+.lwp-calendar .fc-daygrid-more-link:hover {
+  background: color-mix(in srgb, var(--p-primary-500) 10%, transparent);
+  border-radius: 4px;
+}
+
+.lwp-calendar .fc-popover {
+  border-radius: 10px;
+  border: 1px solid var(--fc-border-color);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.lwp-calendar .fc-popover-header {
+  background: var(--fc-neutral-bg-color);
+  padding: 6px 10px;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+/* ---------- Time grid — softer lines + business-hours shading ---------- */
+.lwp-calendar .fc-timegrid-slot {
+  height: 2.6em;
+}
+
+.lwp-calendar .fc-timegrid-slot-minor {
+  border-top-style: none;
+}
+
+.lwp-calendar .fc-non-business {
+  background: color-mix(in srgb, var(--p-surface-100) 55%, transparent);
+}
+
 .dark .lwp-calendar {
   --fc-border-color: var(--p-surface-700);
   --fc-today-bg-color: color-mix(in srgb, var(--p-primary-400) 12%, transparent);
@@ -557,5 +704,55 @@ const calendarOptions = computed<CalendarOptions>(() => ({
 
 .dark .lwp-calendar .fc-list-event:hover td {
   background: color-mix(in srgb, var(--p-primary-400) 12%, transparent);
+}
+
+/* ---------- Dark-mode polish variants ---------- */
+.dark .lwp-calendar .fc .fc-button {
+  color: var(--p-surface-300);
+}
+
+.dark .lwp-calendar .fc .fc-button:hover {
+  background: var(--p-surface-800);
+  color: var(--p-surface-100);
+}
+
+.dark .lwp-calendar .fc .fc-button-group {
+  background: var(--p-surface-800);
+}
+
+.dark .lwp-calendar .fc .fc-button-group .fc-button:hover {
+  background: var(--p-surface-700);
+}
+
+.dark .lwp-calendar .fc .fc-button-primary:disabled {
+  color: var(--p-surface-600);
+}
+
+.dark .lwp-calendar .fc-col-header-cell-cushion {
+  color: var(--p-surface-500);
+}
+
+.dark .lwp-calendar .fc-daygrid-day.fc-day-sat,
+.dark .lwp-calendar .fc-daygrid-day.fc-day-sun {
+  background-color: color-mix(in srgb, var(--p-surface-800) 45%, var(--p-surface-900));
+}
+
+.dark .lwp-calendar .fc-daygrid-day.fc-day-other {
+  background-color: color-mix(in srgb, var(--p-surface-800) 30%, var(--p-surface-900));
+}
+
+.dark .lwp-calendar .fc-non-business {
+  background: color-mix(in srgb, var(--p-surface-800) 40%, transparent);
+}
+
+.dark .lwp-calendar .fc-popover,
+.dark .lwp-calendar .fc-popover-body {
+  background: var(--p-surface-900);
+  color: var(--p-surface-200);
+}
+
+.dark .lwp-calendar .fc-popover-header {
+  background: var(--p-surface-800);
+  color: var(--p-surface-200);
 }
 </style>

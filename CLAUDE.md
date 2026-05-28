@@ -62,6 +62,22 @@ When combining the important prefix with variants: `dark:!bg-surface-900`, `focu
 
 Use `@layer components` for global PrimeVue component overrides.
 
+## Design System / UI Standards
+
+The portal has a shared visual language. When adding or restyling UI, match these standards rather than introducing one-off styles.
+
+**Brand colour:** `primary` is mapped to Tailwind `sky` (see `main.ts`). Treat `primary-*` as the brand. Surface the brand on **interactive / active states** — row hover, active sort column, active paginator page, selected toggle option — not as large flat fills. Resting state uses neutral `surface-*` tokens.
+
+**Elevated panel / card:** Top-level content surfaces (tables, calendar, and similar primary panels) share one card treatment:
+`rounded-xl border border-surface-200 dark:border-surface-700 shadow-sm bg-surface-0 dark:bg-surface-900` with `p-4` padding. Any loading placeholder (skeleton) for a carded surface must inherit the same card so there is no visual jump when data loads.
+
+**Centralize component styling:** Global PrimeVue component appearance is standardized once in `src/assets/main.css` under `@layer components`. Do **not** restyle shared components (DataTable, Button, InputText, Paginator, Dialog) per-view — view files set props/layout/slots only, never duplicate global look-and-feel. Remember the Tailwind `@apply` rule above (per-class `!` prefix, variant-first; never a trailing `!important`).
+
+- **Tables** are themed globally: card container, uppercase muted column headers, brand-tinted row hover, brand active-sort highlight, denser cells, subtle striping, sticky-header shadow, and a polished paginator (ghost buttons, brand-filled active page). Views just declare `<DataTable>` / `<Column>` + the `#header`/`#empty` slots. Loading uses `LwpSkeletonTable`, empty uses `LwpEmptyState`.
+- **Calendar** (`LwpEventCalendar.vue`) is themed in its own component `<style>` block (FullCalendar is not a PrimeVue component) but follows the same card + brand-on-interaction language.
+
+**PrimeVue 4 DataTable selectors** (for future global overrides): `.p-datatable` (root), `.p-datatable-header` (header slot), `.p-datatable-thead > tr > th`, `.p-datatable-column-title`, `.p-datatable-sort-icon`, `.p-datatable-column-sorted`, `.p-datatable-tbody > tr` + `td`, striped rows `.p-row-odd` / `.p-row-even`, hover root `.p-datatable-hoverable`, paginator `.p-paginator` / `.p-paginator-page` / `.p-paginator-page-selected` / `.p-paginator-current`.
+
 ## Environment Variables
 
 Copy `.env.example` to `.env.development` / `.env.staging` / `.env.production` and populate:

@@ -19,6 +19,7 @@ const props = withDefaults(
 )
 
 const isLoaded = ref(false)
+const hasError = ref(false)
 
 const image = computed(() => {
   const img = cloudinary.image(props.publicId ?? 'samples/cloudinary-icon')
@@ -40,11 +41,17 @@ const handleLoad = () => {
   isLoaded.value = true
 }
 
+const handleError = () => {
+  hasError.value = true
+  isLoaded.value = true
+}
+
 // Reset loading state when image changes
 watch(
   () => props.publicId,
   () => {
     isLoaded.value = false
+    hasError.value = false
   },
 )
 const handleClick = (event: Event) => {
@@ -60,22 +67,32 @@ const handleClick = (event: Event) => {
     @click="handleClick"
   >
     <Skeleton v-if="!isLoaded" class="absolute inset-0 w-full h-full" />
-    <Image v-if="preview" :src="imageUrl" class="w-full h-full" preview>
-      <template #image>
-        <AdvancedImage
-          :cld-img="image"
-          class="w-full h-full object-cover transition-opacity duration-300"
-          :class="isLoaded ? 'opacity-100' : 'opacity-0'"
-          @load="handleLoad"
-        />
-      </template>
-    </Image>
-    <AdvancedImage
-      v-else
-      :cld-img="image"
-      class="w-full h-full object-cover transition-opacity duration-300"
-      :class="isLoaded ? 'opacity-100' : 'opacity-0'"
-      @load="handleLoad"
-    />
+    <div
+      v-if="hasError"
+      class="absolute inset-0 w-full h-full flex items-center justify-center bg-surface-100 dark:bg-surface-800"
+    >
+      <i class="pi pi-image text-surface-400 dark:text-surface-500 text-2xl"></i>
+    </div>
+    <template v-else>
+      <Image v-if="preview" :src="imageUrl" class="w-full h-full" preview>
+        <template #image>
+          <AdvancedImage
+            :cld-img="image"
+            class="w-full h-full object-cover transition-opacity duration-300"
+            :class="isLoaded ? 'opacity-100' : 'opacity-0'"
+            @load="handleLoad"
+            @error="handleError"
+          />
+        </template>
+      </Image>
+      <AdvancedImage
+        v-else
+        :cld-img="image"
+        class="w-full h-full object-cover transition-opacity duration-300"
+        :class="isLoaded ? 'opacity-100' : 'opacity-0'"
+        @load="handleLoad"
+        @error="handleError"
+      />
+    </template>
   </div>
 </template>

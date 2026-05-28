@@ -69,4 +69,146 @@
   .p-dialog-header-close .p-button-icon {
     @apply !m-0 !p-0 !w-5 !h-5;
   }
+
+  /* ============================================================
+     Global DataTable Standardization
+     Brand-forward, card-contained tables shared across all views.
+     Brand colour surfaces on row hover, active sort and active page.
+     ============================================================ */
+
+  /* Card container — mirrors the calendar panel treatment */
+  .p-datatable {
+    @apply !rounded-xl !border !border-surface-200 dark:!border-surface-700 !shadow-sm !overflow-hidden !bg-surface-0 dark:!bg-surface-900;
+  }
+
+  /* Header bar (action-button toolbar slot) */
+  .p-datatable-header {
+    @apply !bg-transparent !border-b !border-surface-200 dark:!border-surface-700 !px-4 !py-3;
+  }
+
+  /* Column headers — uppercase, muted, letter-spaced data-grid style */
+  .p-datatable-thead > tr > th {
+    @apply !bg-surface-50 dark:!bg-surface-800 !border-surface-200 dark:!border-surface-700 !py-3 !text-xs !font-semibold !uppercase !tracking-wider !text-surface-500 dark:!text-surface-400;
+  }
+
+  /* Sort affordance — neutral idle, brand on active sort */
+  .p-datatable-sort-icon {
+    @apply !text-surface-400 dark:!text-surface-500;
+  }
+
+  .p-datatable-column-sorted {
+    @apply !bg-primary-50 dark:!bg-primary-900/20 !text-primary-600 dark:!text-primary-400;
+  }
+
+  .p-datatable-column-sorted .p-datatable-sort-icon {
+    @apply !text-primary-600 dark:!text-primary-400;
+  }
+
+  /* Body cells — more vertical breathing room */
+  .p-datatable-tbody > tr > td {
+    @apply !px-4 !py-3.5 !border-surface-200 dark:!border-surface-700;
+  }
+
+  /* Subtle zebra striping */
+  .p-datatable-striped .p-datatable-tbody > tr.p-row-odd {
+    @apply !bg-surface-50/60 dark:!bg-surface-800/30;
+  }
+
+  /* Brand-tinted hover — rows are clickable across the app */
+  .p-datatable-hoverable .p-datatable-tbody > tr:not(.p-datatable-row-selected):hover {
+    @apply !bg-primary-50 dark:!bg-primary-900/20;
+  }
+
+  /* Sticky-header shadow on scrollable tables */
+  .p-datatable-scrollable .p-datatable-thead > tr > th {
+    box-shadow: 0 3px 4px -3px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Paginator — ghost buttons, brand-filled active page */
+  .p-paginator {
+    @apply !bg-transparent !border-t !border-surface-200 dark:!border-surface-700 !px-4 !py-2;
+  }
+
+  .p-paginator .p-paginator-first,
+  .p-paginator .p-paginator-prev,
+  .p-paginator .p-paginator-next,
+  .p-paginator .p-paginator-last,
+  .p-paginator .p-paginator-page {
+    @apply !rounded-lg !min-w-[2.25rem] !h-9 !text-surface-600 dark:!text-surface-300 !transition-colors;
+  }
+
+  .p-paginator .p-paginator-first:not(:disabled):hover,
+  .p-paginator .p-paginator-prev:not(:disabled):hover,
+  .p-paginator .p-paginator-next:not(:disabled):hover,
+  .p-paginator .p-paginator-last:not(:disabled):hover,
+  .p-paginator .p-paginator-page:not(.p-paginator-page-selected):hover {
+    @apply !bg-surface-100 dark:!bg-surface-800;
+  }
+
+  .p-paginator .p-paginator-page-selected {
+    @apply !bg-primary-500 !text-white !font-semibold;
+  }
+
+  .p-paginator .p-paginator-current {
+    @apply !text-sm !text-surface-500 dark:!text-surface-400;
+  }
+
+  /* ============================================================
+     Global Sidebar Menu (LwpDrawer) Standardization
+     Elevated card panel, uppercase muted group labels, brand-on-
+     interaction nav items — mirrors the DataTable/Calendar language.
+     ============================================================ */
+
+  /* Panel — elevated card surface, column layout so footer pins to bottom */
+  .p-menu {
+    @apply !flex !flex-col !p-0 !overflow-hidden !border !border-surface-200 dark:!border-surface-700 !bg-surface-0 dark:!bg-surface-900 !shadow-sm;
+  }
+
+  /* Brand / logo header */
+  .p-menu-start {
+    @apply !border-b !border-surface-200 dark:!border-surface-700;
+  }
+
+  /* Account footer */
+  .p-menu-end {
+    @apply !border-t !border-surface-200 dark:!border-surface-700;
+  }
+
+  /* List — grows to fill, scrolls independently, tight row rhythm */
+  .p-menu-list {
+    @apply !flex !flex-col !flex-1 !gap-0.5 !overflow-y-auto !p-3;
+    scrollbar-width: thin;
+  }
+
+  /* Group labels — uppercase, muted, letter-spaced (matches table headers) */
+  .p-menu-submenu-label {
+    @apply !bg-transparent !px-3 !pt-4 !pb-1.5 !text-xs !font-semibold !uppercase !tracking-wider !text-surface-500 dark:!text-surface-400;
+  }
+
+  /* Nav item — rounded, aligned icon + label, smooth */
+  .p-menu-item-link {
+    @apply !flex !items-center !gap-3 !rounded-lg !px-3 !py-2.5 !text-surface-700 dark:!text-surface-200 !transition-colors !duration-150;
+  }
+
+  /* Hover (non-active) — brand tint */
+  .p-menu-item-link:hover {
+    @apply !bg-primary-50 dark:!bg-primary-900/20 !text-primary-600 dark:!text-primary-400;
+  }
+
+  /* Active — solid brand fill, stays brand on hover */
+  .p-menu-item-link.nav-item--active,
+  .p-menu-item-link.nav-item--active:hover {
+    @apply !bg-primary !text-primary-contrast !font-medium !shadow-sm;
+  }
+}
+
+/* Global route transition — applies to routed component roots, must stay outside @layer */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }

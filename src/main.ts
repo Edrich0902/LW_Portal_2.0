@@ -5,6 +5,7 @@ import Aura from '@primeuix/themes/aura'
 import App from './App.vue'
 import router from './router'
 import { ConfirmationService, Ripple, ToastService } from 'primevue'
+import Tooltip from 'primevue/tooltip'
 import { useAuthStore } from '@stores/auth/auth.store.ts'
 import { useThemeStore } from '@stores/theme/theme.store.ts'
 import { pinia } from '@stores/pinia.store.ts'
@@ -49,6 +50,7 @@ app.use(PrimeVue, {
   .use(ToastService)
   .use(ConfirmationService)
   .directive('ripple', Ripple)
+  .directive('tooltip', Tooltip)
 
 // State management
 app.use(pinia)

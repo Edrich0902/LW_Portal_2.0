@@ -128,9 +128,9 @@ const attemptDelete = (event: MouseEvent) => {
 </script>
 
 <template>
-  <Dialog v-model:visible="model" modal :header="modalTitle" class="w-1/3">
+  <Dialog v-model:visible="model" modal :header="modalTitle" class="w-full max-w-xl mx-4">
     <div class="flex flex-col items-center gap-3 mb-4">
-      <div class="w-full h-40 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+      <div class="w-full h-40 bg-surface-100 dark:bg-surface-800 rounded-lg overflow-hidden flex items-center justify-center">
         <LwpImage
           :public-id="imagePublicId"
           :height="300"
@@ -168,7 +168,7 @@ const attemptDelete = (event: MouseEvent) => {
         }}</Message>
       </FormField>
 
-      <div class="flex items-center justify-between w-full mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+      <div class="flex items-center justify-between w-full mt-4 pt-4 border-t border-surface-200 dark:border-surface-700">
         <div>
           <Button
             v-if="isUpdating"
