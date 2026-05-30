@@ -46,6 +46,26 @@ const statusConfig = computed(() => {
     case 'daily':
       return { severity: 'secondary' as const, icon: 'pi pi-sun', label: 'Daily' }
 
+    // App Feedback Statuses
+    case 'open':
+      return { severity: 'info' as const, icon: 'pi pi-circle', label: 'Open' }
+    case 'under_review':
+      return { severity: 'warn' as const, icon: 'pi pi-eye', label: 'Under Review' }
+    case 'planned':
+      return { severity: 'help' as const, icon: 'pi pi-calendar', label: 'Planned' }
+    case 'resolved':
+      return { severity: 'success' as const, icon: 'pi pi-check-circle', label: 'Resolved' }
+    case 'closed':
+      return { severity: 'secondary' as const, icon: 'pi pi-times-circle', label: 'Closed' }
+
+    // Feedback Categories
+    case 'bug_report':
+      return { severity: 'danger' as const, icon: 'pi pi-exclamation-circle', label: 'Bug Report' }
+    case 'feature_request':
+      return { severity: 'info' as const, icon: 'pi pi-star', label: 'Feature Request' }
+    case 'improvement':
+      return { severity: 'help' as const, icon: 'pi pi-arrow-up', label: 'Improvement' }
+
     // Group Types
     case 'connect':
       return { severity: 'primary' as const, icon: 'pi pi-users', label: 'Connect Group' }

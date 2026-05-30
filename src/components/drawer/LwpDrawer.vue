@@ -44,6 +44,7 @@
         { label: 'Connect & Serve', to: '/connect-serve', icon: 'pi pi-users' },
         { label: 'Tithes & Offerings', to: '/tithes-offerings', icon: 'pi pi-wallet' },
         { label: 'Prayer Requests', to: '/prayer-requests', icon: 'pi pi-heart' },
+        { label: 'App Feedback', to: '/app-feedback', icon: 'pi pi-comments' },
       ]
     }
   ])

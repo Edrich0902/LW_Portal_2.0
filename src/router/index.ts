@@ -20,6 +20,7 @@ import VisionMissionView from '@views/vision-mission/VisionMissionView.vue'
 import TithesOfferingsView from '@views/tithes-offerings/TithesOfferingsView.vue'
 import PrayerRequestsView from '@views/prayer-requests/PrayerRequestsView.vue'
 import EventOverviewView from '@views/events/EventOverviewView.vue'
+import AppFeedbackView from '@views/app-feedback/AppFeedbackView.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -142,6 +143,12 @@ const router = createRouter({
       name: 'EventOverview',
       component: EventOverviewView,
       meta: handleMeta(true, true, 'Event Overview'),
+    },
+    {
+      path: '/app-feedback',
+      name: 'AppFeedback',
+      component: AppFeedbackView,
+      meta: handleMeta(true, true, 'App Feedback'),
     },
   ],
 })
