@@ -45,6 +45,7 @@
         { label: 'Tithes & Offerings', to: '/tithes-offerings', icon: 'pi pi-wallet' },
         { label: 'Prayer Requests', to: '/prayer-requests', icon: 'pi pi-heart' },
         { label: 'App Feedback', to: '/app-feedback', icon: 'pi pi-comments' },
+        { label: 'Pastoral Blog', to: '/pastoral-blog', icon: 'pi pi-pen-to-square' },
       ]
     }
   ])

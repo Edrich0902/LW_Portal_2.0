@@ -22,6 +22,8 @@ import TithesOfferingsView from '@views/tithes-offerings/TithesOfferingsView.vue
 import PrayerRequestsView from '@views/prayer-requests/PrayerRequestsView.vue'
 import EventOverviewView from '@views/events/EventOverviewView.vue'
 import AppFeedbackView from '@views/app-feedback/AppFeedbackView.vue'
+import PastoralBlogView from '@views/pastoral-blog/PastoralBlogView.vue'
+import PastoralBlogEditView from '@views/pastoral-blog/PastoralBlogEditView.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -156,6 +158,25 @@ const router = createRouter({
       name: 'AppFeedback',
       component: AppFeedbackView,
       meta: handleMeta(true, true, 'App Feedback'),
+    },
+    {
+      path: '/pastoral-blog',
+      name: 'PastoralBlog',
+      component: PastoralBlogView,
+      meta: handleMeta(true, true, 'Pastoral Blog'),
+    },
+    {
+      path: '/pastoral-blog/new',
+      name: 'PastoralBlogNew',
+      component: PastoralBlogEditView,
+      meta: handleMeta(true, true, 'New Post'),
+    },
+    {
+      path: '/pastoral-blog/:id/edit',
+      name: 'PastoralBlogEdit',
+      component: PastoralBlogEditView,
+      props: true,
+      meta: handleMeta(true, true, 'Edit Post'),
     },
   ],
 })

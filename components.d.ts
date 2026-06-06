@@ -31,6 +31,7 @@ declare module 'vue' {
     LwpEventCalendar: typeof import('./src/components/lwp-event-calendar/LwpEventCalendar.vue')['default']
     LwpImage: typeof import('./src/components/lwp-image/LwpImage.vue')['default']
     LwpImageUploader: typeof import('./src/components/lwp-image/LwpImageUploader.vue')['default']
+    LwpQuillEditor: typeof import('./src/components/lwp-quill-editor/LwpQuillEditor.vue')['default']
     LwpQuillViewer: typeof import('./src/components/lwp-quill-viewer/LwpQuillViewer.vue')['default']
     LwpSkeletonTable: typeof import('./src/components/lwp-skeleton-table/LwpSkeletonTable.vue')['default']
     LwpStatusTag: typeof import('./src/components/lwp-status-tag/LwpStatusTag.vue')['default']
