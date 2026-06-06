@@ -30,6 +30,7 @@ onBeforeMount(async () => {
 const searchText = ref(prayerRequestsStore.filter.searchText)
 const selectedStatus = ref(prayerRequestsStore.filter.status)
 const selectedCategory = ref(prayerRequestsStore.filter.category)
+const selectedPrivacy = ref(prayerRequestsStore.filter.isPrivate)
 
 const statusOptions = [
   { label: 'All Statuses', value: '' },
@@ -47,11 +48,18 @@ const categoryOptions = [
   })),
 ]
 
+const privacyOptions = [
+  { label: 'All', value: '' },
+  { label: 'Private', value: 'true' },
+  { label: 'Public', value: 'false' },
+]
+
 const applyFilters = async () => {
   await prayerRequestsStore.filterPrayerRequests({
     searchText: searchText.value,
     status: selectedStatus.value,
     category: selectedCategory.value,
+    isPrivate: selectedPrivacy.value,
   })
 }
 
@@ -98,7 +106,7 @@ watch(searchText, () => {
   onSearch()
 })
 
-watch([selectedStatus, selectedCategory], async () => {
+watch([selectedStatus, selectedCategory, selectedPrivacy], async () => {
   await applyFilters()
 })
 </script>
@@ -148,6 +156,15 @@ watch([selectedStatus, selectedCategory], async () => {
             optionLabel="label"
             optionValue="value"
             placeholder="Filter by category"
+            class="w-full sm:flex-1"
+            size="small"
+          />
+          <Select
+            v-model="selectedPrivacy"
+            :options="privacyOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Filter by visibility"
             class="w-full sm:flex-1"
             size="small"
           />
@@ -229,6 +246,10 @@ watch([selectedStatus, selectedCategory], async () => {
         </template>
         <template v-else-if="col.field === 'is_anonymous'" #body="slotProps">
           {{ slotProps.data[col.field] ? 'Yes' : 'No' }}
+        </template>
+        <template v-else-if="col.field === 'is_private'" #body="slotProps">
+          <Tag v-if="slotProps.data.is_private" severity="warn" value="Private" />
+          <span v-else class="text-surface-400 text-sm">—</span>
         </template>
         <template v-else-if="col.field === 'email'" #body="slotProps">
           <div class="max-w-xs truncate" :title="slotProps.data[col.field]">

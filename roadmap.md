@@ -1,308 +1,188 @@
-# LW Portal 2.0 — Roadmap
+# LW Platform Roadmap
 
-LW Portal is the **content management and operational hub** for the LW Flutter app. Everything the congregation sees in the app — sermons, events, announcements, groups, tithes info — is authored, curated, and published here. The roadmap below extends the Portal from a basic CMS into a full church operations platform that makes the admin team's daily work faster and the Flutter app richer.
+This roadmap is shared by `LW_Portal_2.0` and `LW_App`. The two roadmap files must remain identical so planning and delivery stay aligned across the admin portal and the member-facing app.
 
-Features are organized by operational impact, not technical layer. Priority order within each section runs high → lower.
+## Sync Rule
+- Always keep `LW_Portal_2.0/roadmap.md` and `LW_App/Roadmap.md` in sync when adding new features, reprioritizing work, or marking features complete.
 
----
+## Shared Product Direction
+LW Portal is the operational and content control layer.
+LW App is the congregation-facing experience layer.
+Both products run on the same Supabase backend and should be planned as one platform rather than two separate systems.
 
-## Phase 1 — Pastoral Care & Member Lifecycle
+## Current Shared Foundation
+These backend domains already exist in the system and should be extended before introducing unrelated new modules:
+- Users and profiles
+- Announcements
+- Sermons
+- Events and event RSVP
+- Groups / Connect and Serve
+- Prayer requests
+- Notes
+- Social media links
+- Tithes and offerings settings
+- Meta data / church information
 
-These are the highest-leverage features because they directly support the people the church is responsible for.
+## Now
+These are the next highest-value features because they build directly on existing shared entities and create complete loops between portal operations and app engagement.
 
-### 1.1 Attendance Tracking
-Record attendance per service or event. Mark members and guests present, track first-timers separately, and see trends over time. A simple "Check In" flow per event date is enough — no hardware needed.
-- Per-event attendance registers linked to existing `Event` records
-- Mark `User` as present, absent, or first-timer
-- Weekly attendance count stored for trend reporting
-- First-timer flag triggers a follow-up task automatically
+### 1. Groups 2.0
+Turn groups into a full discipleship and community workflow.
+- Status: shared Supabase contract, portal admin management, and app member/leader flows are delivered
+- Backend: `group_memberships`, shared views, RPCs, and RLS for join, approve, decline, leave, remove, and leader assignment
+- Portal: group CRUD plus leader assignment, active-member management, pending-request approval, and membership counts
+- App: dedicated group detail screens, join/leave actions, `My Groups`, and leader moderation tools
+- App: group feed with leader-authored rich-text posts and member reactions
 
-### 1.2 First-Timer & New Member Pipeline
-A structured follow-up workflow for visitors. Currently `is_member` is a binary flag — this adds the journey in between.
-- Introduce a `journey_stage` field on `User`: `visitor → regular → membership_class → member`
-- Assign a pastoral owner to each person in the pipeline
-- Log notes and follow-up actions per person (private, pastoral-only)
-- Dashboard widget showing how many people are at each stage
+### 2. Group Feed Moderation and Notifications
+Extend the new group feed into an operational communications loop.
+- Status: pinned posts (backend, mobile, portal) and portal feed moderation are delivered; push notifications remain pending
+- Backend: `is_pinned` column, `set_group_post_pinned` RPC, and updated `group_posts_view` with pinned-first ordering
+- Portal: feed tab in group manage view — admins can view, pin/unpin, and delete posts via Quill rich-text viewer
+- App: leaders can pin/unpin posts from the group feed; pinned posts are visually badged and float to top
+- App: deep links into specific group posts when notifications are added
+- Add push notification delivery for new group posts
+- Add feed analytics or read-state only if needed later
 
-### 1.3 Pastoral Notes & Care Log
-Private, confidential notes per member — counseling sessions, prayer points, significant life events. Never visible to non-pastoral roles.
-- Notes attached to a `User` record with `created_by` and `created_at`
-- Role-gated: only `SUPER_ADMIN` / future `PASTOR` role can read/write
-- Note categories: Counseling, Prayer, Pastoral Visit, General
+### 3. Prayer Workflow Completion
+Complete the prayer request lifecycle from submission to care follow-up.
+- Status: portal private requests and pastoral notes trail delivered; app-side and assignment remain
+- Portal: multi-step pastoral notes per request — admins can add/delete internal notes with author + timestamp trail
+- Portal: private request flag — hides the request from the public app view; portal admins see all
+- App: replace generic reaction with `Ek Het Gebid`
+- App: allow request owners to post updates / praise reports
+- App: support private prayer requests visible only to church leadership
+- Portal: assign prayer requests to a leader or team member (deferred)
 
-### 1.4 Birthday & Anniversary Reminders
-Store member dates of birth and membership anniversary. Surface upcoming ones on the dashboard so the pastoral team never misses a moment.
-- Add `date_of_birth` and `membership_date` to `User`
-- Dashboard widget: "This week's birthdays / anniversaries"
-- Optional: trigger an announcement draft or WhatsApp message
+### 4. Announcements and Notifications Platform
+Use announcements as the base communications system across the platform.
+- Portal: scheduled announcements
+- Portal: push action for mobile delivery
+- App: notification center for missed announcements and pushes
+- App: event reminder notifications for RSVP'd users
+- Add delivery and read-state tracking where practical
 
-### 1.5 Prayer Requests
-Members submit prayer requests via the Flutter app; the Portal is where the team reviews and manages them. Closes the loop between the app and the pastoral team.
-- Prayer request queue with statuses: `new → praying → answered → archived`
-- Assign to a specific intercessor or prayer team
-- Mark answered with a note — optionally push a "your prayer was answered" notification back to the user via the Flutter app
-- Dashboard count of open requests
+### 5. Sermon Series and Contextual Notes
+Improve sermon discoverability and long-term engagement.
+- Portal: sermon series management with artwork and descriptions
+- App: series collections and guided discovery
+- App: sermon-linked notes
+- App: continue watching / listening progress
 
----
+### 6. Daily Devotionals
+Create a weekday engagement loop owned by the church team.
+- Portal: devotional authoring and scheduling
+- App: devotional reading experience
+- App: optional devotional push notifications
+- Link devotionals to sermon themes or church campaigns where relevant
 
-## Phase 2 — Worship & Services
+### 7. Attendance and Check-In
+Add the next operational layer on top of events and RSVPs.
+- Portal: attendance registers per event or service
+- Portal: first-timer visibility and follow-up flags
+- App: QR or manual event check-in for selected event types
+- Portal: attendance reporting and trends
 
-### 2.1 Sermon Series Management
-Group sermons into a named series with its own artwork and description. Improves content discoverability for the member-facing app.
-- `Series` entity: title, description, banner image, start/end dates
-- Link multiple `Sermon` records to a series
-- Series view with episode list and progress indicator
+## Next
+These are strong follow-on features once the "Now" items are in place.
 
-### 2.2 Order of Service / Bulletin Builder
-Build the weekly service order inside the portal and export it as a PDF or shareable link. Eliminates the back-and-forth WhatsApp editing of a Word document.
-- Drag-and-drop order of service items (Welcome, Worship, Tithe, Sermon, Announcements, etc.)
-- Add times, leaders, and notes per item
-- One-click PDF export using a clean printable template
-- Optional: lock the bulletin after Saturday night so no last-minute changes
+### 8. Member Journey CRM
+Track the path from visitor to engaged member.
+- Journey stages such as visitor, regular, membership class, member, serving
+- Owner assignment for follow-up
+- Notes, tasks, and dashboard summaries
 
-### 2.3 Worship Team Roster Scheduling
-Schedule who serves in which role across services. Replaces the spreadsheet or WhatsApp group most churches use.
-- Roles: Sound, Projector, Worship Leader, Band, Ushers, Welcome Team, etc.
-- Weekly schedule view — assign people from the `Roleplayer` list or `User` list
-- Conflict detection (person already on roster that day)
-- Export schedule to PDF or send via WhatsApp
+### 9. Volunteer Scheduling and Rosters
+Coordinate service teams more effectively.
+- Portal: roster builder, conflict detection, role assignment
+- App: volunteer schedule visibility and reminders
+- Future option: member availability submission in-app
 
-### 2.4 Song Library
-A searchable library of songs used in worship — lyrics, chords, key, CCLI number. Saves the Worship Leader from searching every Sunday.
-- Fields: title, artist, key, tempo, tags, lyrics/chords (rich text), CCLI number
-- Attach to Order of Service items
-- Search by title, key, or tag
+### 10. Featured Content and Home Screen Curation
+Let the portal intentionally shape what users see first.
+- Pin sermons, events, testimonies, or announcements
+- Add expiry dates and ordering
+- Preview home screen content from the portal
 
----
+### 11. Resource Library
+Create a managed library for documents and study resources.
+- Portal: upload and organize PDFs and other files
+- App: browse and download resources by category
+- Optional role-based access for restricted resources
 
-## Phase 3 — Operations & Communications
+### 12. Giving Records and Reporting
+Extend giving from static banking details into structured stewardship data.
+- Portal: record individual giving entries
+- Portal: member and aggregate giving reports
+- App: eventual in-app giving support if payment integration is introduced
 
-### 3.1 Announcement Scheduling
-Set a `scheduled_at` datetime on an announcement so it goes live automatically. Currently announcements are manually pushed — this removes the Sunday morning scramble.
-- Add optional `scheduled_at` timestamp column to the `announcements` table
-- Enable `pg_cron` in Supabase and schedule a per-minute SQL job: `update announcements set state = 'sent' where state = 'pending' and scheduled_at <= now()`
-- Portal: datetime picker in the announcement modal alongside the existing "Send Now" action; scheduled announcements shown in the list with their target time
-- Mobile app requires no changes — it already filters to `state = 'sent'` only
-- If push notifications are added later (3.3), the same cron job can trigger a webhook → Edge Function → FCM push
+### 13. Dashboard Analytics and Reporting
+Make trends visible to leaders and administrators.
+- Attendance trends
+- Member growth and conversion funnels
+- Sermon and announcement engagement
+- Exportable reports
 
-### 3.2 WhatsApp / SMS Integration
-Send announcements directly from the portal via WhatsApp Business API or an SMS gateway (e.g. Twilio, Africa's Talking). Meets members where they actually are.
-- Connect a WhatsApp Business or SMS provider in Settings
-- "Send via WhatsApp" action on any announcement
-- Log delivery status per message
-- Opt-out tracking to respect member preferences
+## Later
+These are good platform expansions, but they should follow the shared workflow and engagement work above.
 
-### 3.3 Push Notification Integration
-Firebase Cloud Messaging integration to push announcements to the member-facing app.
-- Store FCM tokens against `User` records
-- "Push" action alongside existing announcement actions
-- Delivery receipts shown in the announcement detail
+### 14. Global Search
+- Portal: command palette / entity search
+- App: cross-content search for sermons, events, groups, and prayer requests
 
-### 3.4 Small Groups / Cell Groups Management
-The `Group` type exists but there is no dedicated management screen. Cell groups are central to most church discipleship strategies.
-- Full CRUD screen for Groups (Home Cell, Youth, Men's, Ladies', etc.)
-- Assign a group leader from the `User` list
-- Enroll members into groups — many-to-many `user_groups` junction
-- Group attendance tracking per meeting date
+### 15. Testimonies Module
+- App submission flow
+- Portal moderation queue
+- Featured testimonies and home screen placement
 
-### 3.5 Resource Library
-A place to upload and organize PDFs, study guides, and documents. Replaces the endless WhatsApp file forwards.
-- File upload to Cloudinary (PDF, DOCX support)
-- Categories: Bible Study, Sermon Notes, Forms, Policies
-- Searchable by title and category
-- Optional: restrict downloads by role
+### 16. Live Service Mode
+- Portal `Go Live` control
+- App live-state surfacing and alerts
 
----
+### 17. Audit Trail and Granular Roles
+- Immutable activity logs
+- More specific admin role permissions
 
-## Phase 4 — Analytics & Reporting
+### 18. Media Library
+- Reusable Cloudinary-backed asset management
+- Search, tagging, and reuse across modules
 
-### 4.1 Interactive Dashboard Charts
-Replace the static stat cards with live charts that show growth over time. Pastors and elders need to see trends, not just snapshots.
-- Member growth chart (new users per month, rolling 12 months)
-- Attendance trend chart per service type
-- Baptism and membership conversion funnel
-- Giving trend (if giving records are tracked)
+### 19. Settings and Integrations Hub
+- Church profile
+- Firebase / WhatsApp / SMS credentials
+- Admin preferences and operational settings
 
-### 4.2 Giving / Tithe Tracking
-Currently the portal only stores banking details. Adding individual giving records enables generosity reporting and stewardship conversations.
-- Log giving entries: `user`, `amount`, `date`, `type` (tithe, offering, special)
-- Monthly and annual giving summaries per member
-- Aggregate reporting: total giving per month, year-on-year comparison
-- Export to CSV for the treasurer
+## New Additions To Include
+These were not cleanly represented in the original roadmaps and should now be considered part of platform planning.
 
-### 4.3 Custom Report Builder
-Let admins build their own filtered exports without needing a developer.
-- Choose entity (Users, Attendance, Giving, etc.)
-- Apply filters (date range, status, group membership, etc.)
-- Export as CSV or PDF
+### Households and Family Links
+- Link spouses, parents, and children where relevant
+- Useful for pastoral care, attendance, and ministry follow-up
 
-### 4.4 Engagement Metrics
-Track content views and interactions for Sermons and Announcements to understand what resonates.
-- View count on Sermon and Announcement records (incremented by member app)
-- "Most viewed" widgets on the dashboard
-- Series completion rate for sermon series
+### Follow-Up Task Engine
+- Generate and assign tasks from first-timer visits, unresolved prayer requests, and join requests
+- Provide due dates, ownership, and completion tracking
 
----
+### Volunteer Availability
+- Allow members to submit availability in the app
+- Use that data in portal roster planning
 
-## Phase 5 — System Health & Tooling
+### Profile Completeness and Data Quality
+- Prompt members to complete profile details
+- Surface missing key fields to admins for cleanup
 
-### 5.1 Global Search (Cmd+K Command Palette)
-Keyboard-first navigation across all entities — Users, Sermons, Events, Announcements, Groups, etc. Saves enormous time for power users.
-- `Cmd+K` opens a floating search bar
-- Fuzzy search across all entity titles and names
-- Jump directly to the record detail or management screen
-- Recent searches persisted locally
+### Content Expiry and Archiving Rules
+- Auto-expire stale announcements, pins, and event promotions
+- Reduce manual cleanup in the portal
 
-### 5.2 Activity Log (Audit Trail)
-A system-wide log of every create, update, and delete action with the actor's identity and timestamp. Essential for accountability in a multi-admin environment.
-- Middleware-level logging — no service call goes unlogged
-- Filterable log view: by user, by entity type, by date range
-- Diff view showing what changed (old value → new value)
-- Log entries are immutable — no delete action on logs
+### Language Preference Targeting
+- Support Afrikaans and English delivery preferences for announcements, devotionals, and notifications if needed later
 
-### 5.3 Granular Role System
-Expand beyond `SUPER_ADMIN / USER` to give specific access without granting full admin rights.
-- Roles: `SUPER_ADMIN`, `PASTOR`, `EDITOR`, `SOCIAL_MEDIA`, `TREASURER`, `VIEWER`
-- Each role has a defined permission matrix (read/write per module)
-- Role assignment managed from the Users screen
-- Sensitive modules (Pastoral Notes, Giving Records) require `PASTOR` or above
-
-### 5.4 Bulk Actions
-Multi-select rows in any DataTable and apply actions in one operation. Prevents the tedious one-by-one workflow.
-- Select multiple records via checkbox column
-- Context-sensitive action menu: delete, change status, assign to group, export selection
-- Confirmation dialog with preview of affected records
-
-### 5.5 Media Library
-A dedicated screen to browse, search, and reuse images already uploaded to Cloudinary — instead of re-uploading the same banner every week.
-- Grid view of all uploaded images, sortable by date and entity type
-- Search by filename or tag
-- Click to insert into any image field (announcements, events, sermons)
-- Support for alt-text, captions, and tags on each asset
-
-### 5.6 Settings & Integrations Hub
-A single Settings screen for all portal-wide configuration — today this is scattered or hardcoded.
-- Church profile: name, logo, address, social handles
-- Integration credentials: WhatsApp, Firebase, SMS gateway
-- Notification preferences per admin user
-- Danger zone: data export, account deletion
-
----
-
-## Phase 6 — Flutter App Integration & Content Experience
-
-These features are specifically about making the Portal the smart control layer for the Flutter app — what gets shown, when, and how.
-
-### 6.1 Featured Content Pinning
-Control what appears prominently on the Flutter app home screen directly from the portal. Turns the home screen from "latest stuff" into intentional editorial curation.
-- Pin any entity (sermon, series, event, announcement) to a "featured" slot
-- Set an expiry date so pins auto-clear after the relevant date
-- Drag-and-drop ordering of featured items
-- Preview how the home screen layout will look before publishing
-
-### 6.2 Live Service Mode
-A "Go Live" button that flips the Flutter app into a live-service state instantly. Replaces the manual "we're live!" WhatsApp blast every Sunday morning.
-- One-tap toggle on the dashboard — sets a `is_live` flag with a stream URL
-- Automatically pushes a notification to all app users
-- Flutter app surfaces the live stream link prominently while active
-- Auto-reverts after a configurable duration (e.g. 3 hours) or manual stop
-
-### 6.3 Testimonies Module
-Members submit testimonies via the Flutter app; the Portal holds them in a moderation queue before anything goes public. Creates a content loop between the congregation and the app.
-- Submission queue: `pending → approved → rejected`
-- Admin can edit for length/clarity before approving
-- Approved testimonies appear in a dedicated Flutter app feed
-- Optional: feature a testimony on the home screen via 6.1 pinning
-
-### 6.4 Devotional / Daily Reading
-A new content type — short daily devotionals (scripture + reflection + prayer point) authored in the portal and surfaced as a daily push notification in the Flutter app. Drives daily app engagement, not just Sunday.
-- Fields: date, scripture reference, body (rich text), prayer prompt
-- Schedule devotionals in advance (week or month at a time)
-- Push notification fires at a configurable time each morning
-- Archive view so members can catch up on missed days
-
-### 6.5 Content Calendar
-A single calendar view showing everything scheduled across all modules — announcements going live, events, sermon uploads, devotionals, group meetings. Prevents clashes and gives the team a birds-eye view of the week.
-- Month and week view modes
-- Color-coded by content type
-- Click any item to jump directly to its edit screen
-- Highlight conflicts (e.g. two announcements publishing at the same time)
-
-### 6.6 Admin Notification Center
-An in-app notification bell for portal users — surfaces what needs attention without having to check each module manually.
-- Unread badge count on the bell icon in the nav
-- Notification types: new prayer requests, new testimonies pending approval, announcements going live soon, new first-timers registered
-- Mark as read individually or all at once
-- Click a notification to jump directly to the relevant record
-
----
-
-## Phase 7 — AI-Powered Tools
-
-Practical AI features that reduce repetitive work for the admin team.
-
-### 7.1 AI Sermon Tools
-Paste a YouTube link or sermon transcript and get auto-generated content for the Flutter app — powered by the Claude API.
-- Auto-generate a sermon summary (2–3 paragraphs)
-- Extract and list key scripture references
-- Generate small group discussion questions (5–7 questions)
-- All outputs are editable before publishing alongside the sermon record
-
-### 7.2 Social Media Composer
-Elevate the existing social media module with AI-assisted drafting. Turn one sermon into a week of content in minutes.
-- "Create posts from this sermon" action on any sermon record
-- AI drafts platform-specific captions (Instagram, Facebook, X) with relevant hashtags
-- Pull a quote from the sermon body as a graphic text overlay
-- Schedule posts to go out across the week via the existing social media module
-
-### 7.3 Announcement Drafting Assistant
-Start typing an announcement and get an AI-assisted draft — useful for admins who aren't confident writers.
-- "Draft for me" button in the announcement editor
-- Provide a one-line brief → AI returns a polished announcement body
-- Adjust tone: formal, friendly, urgent
-- Always editable — AI output is a starting point, not the final word
-
----
-
-## Phase 8 — Extended Operations
-
-Useful operational features that improve day-to-day church admin without being core to the content hub role.
-
-### 8.1 Event QR Check-in
-Each event gets a unique QR code. A volunteer opens the portal on their phone, scans a member's app QR, and the attendance is logged. No hardware, no clipboard, no retrospective spreadsheet.
-- Auto-generate a QR code per event date
-- Members have a personal QR in the Flutter app
-- Portal mobile scan view for volunteers (camera access in browser)
-- Real-time attendance count updates on the event record
-
-### 8.2 Giving Statements
-Auto-generate a PDF giving statement per member showing all logged tithes and offerings for a selected period. Eliminates the manual Excel work at year-end.
-- Select member + date range → generate PDF
-- Church letterhead, logo, and registered details pulled from Settings
-- Bulk generate for all members with giving records
-- Email or WhatsApp the statement directly from the portal
-
-### 8.3 Volunteer Hour Tracking
-Track hours served by volunteers across ministries. Useful for recognition, reporting to elders, and understanding who is over-committed.
-- Log hours per volunteer per ministry/role
-- Monthly and annual summaries per person
-- Leaderboard-style recognition view (opt-in)
-- Export for elder or board reporting
-
-### 8.4 Content Templates
-Save any announcement, event, or bulletin as a reusable template. Particularly useful for recurring formats like weekly service announcements or seasonal events.
-- "Save as template" action on any content record
-- Templates library screen with search and category filter
-- "Create from template" pre-populates the form — just update the specifics
-- Share templates across admin users
-
----
-
-## Out of Scope (Intentional)
-
-The following are deliberately excluded to keep the Portal focused on its role as a content and operations hub:
-
-- **Online giving / payment processing** — handled by the bank / SnapScan setup already in place; adding payment processing brings PCI compliance complexity that is out of scope.
-- **Multi-campus support** — single campus assumed; can be revisited if the church plants.
-- **Member-facing UI** — all member-facing features (browsing sermons, RSVPs, prayer submissions, notifications) belong in the Flutter app. The Portal is the authoring and management layer only.
-- **Custom domain email campaigns** — use an existing tool like Mailchimp; the Portal handles push notifications and WhatsApp communications.
+## Delivery Rule
+When a feature affects shared backend data or a user workflow that spans portal and app, planning must cover:
+- Required Supabase schema changes
+- Portal admin workflows
+- App member workflows
+- Permissions and visibility rules
+- Notifications or follow-up actions
+- Analytics or reporting needs

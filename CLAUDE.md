@@ -6,6 +6,38 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 LW Portal 2.0 is a Vue 3 + TypeScript SPA for managing church content and users. Built with Vite, Pinia, PrimeVue 4, Tailwind CSS 4, Supabase (auth + database), and Cloudinary (media).
 
+## Roadmap Sync Rule
+
+Always keep `LW_Portal_2.0/roadmap.md` and `LW_App/Roadmap.md` in sync when adding new features, reprioritizing work, or marking features complete.
+
+## Shared Groups Context
+
+- Groups 2.0 is already partially delivered across the sibling Supabase repo, this portal repo, and `LW_App`.
+- Supabase SQL is stored in the sibling `lwp/supabase/migrations` folder.
+- Existing shared group backend includes:
+  - `group_memberships`
+  - `groups_public_view`
+  - `groups_admin_view`
+  - `group_memberships_view`
+  - RPCs for join request, cancel, approve, decline, leave, remove, leader assignment, and leader edits
+- Group feed backend also exists now:
+  - `group_posts` — includes `is_pinned boolean not null default false`
+  - `group_post_reactions`
+  - `group_posts_view` — exposes `is_pinned`; ordered by `is_pinned DESC, created_at DESC`
+  - post/reaction RPCs including `set_group_post_pinned(target_post_id, should_pin)`
+- Portal feed moderation is implemented in `ConnectServeManageView` as a Feed tab (view, pin/unpin, delete).
+- `LwpQuillViewer` component exists at `src/components/lwp-quill-viewer/LwpQuillViewer.vue` — use it anywhere read-only Quill Delta rendering is needed. The `quill` npm package (v2.0.3) is installed.
+- Full technical state and handoff notes are in `LW_App/docs/groups-feed-handoff.md`.
+
+## Groups-Specific Notes
+
+- Connect & Serve admin member management should live on the dedicated manage screen, not in the CRUD modal.
+- The modal is intentionally limited to create, edit, and delete of groups.
+- Group deletion relies on backend cascade behavior for memberships.
+- A prior Supabase permission issue was caused by `security_invoker = on` on views that joined `auth.users`; that was fixed by recreating the views without `security_invoker` in `20260606143000_fix_groups_view_permissions.sql`.
+- Mobile group feed is intentionally full-screen. Portal moderation is secondary — it views and moderates, it does not author.
+- Portal feed moderation lives in the Feed tab of `ConnectServeManageView`, not in the CRUD modal.
+
 ## Commands
 
 ```bash
@@ -36,6 +68,7 @@ The data flow is: **Component → Store → Service → Supabase**
 
 - Always use `<script setup lang="ts">` in Vue components
 - No `any` types — all data structures belong in `src/types/`
+- **Component-first:** Before writing raw HTML (`<img>`, `<div>`, `<span>`) for a UI pattern, check if PrimeVue or an `Lwp*` component already covers it. Use PrimeVue `Avatar` (with `LwpImage` in its slot for Cloudinary images) instead of raw `<img>` + `<div>` avatar combos. Use `LwpImage` for any Cloudinary-backed image. Only use raw HTML when no existing component fits.
 - Use path aliases for all imports:
   - `@` → `src/`
   - `@views` → `src/views/`

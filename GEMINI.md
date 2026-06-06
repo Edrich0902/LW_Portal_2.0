@@ -3,6 +3,32 @@
 ## Project Overview
 LW Portal 2.0 is a modern web application built with **Vue 3** and **TypeScript**, serving as a portal for managing church-related content and users. It uses **Vite** as the build tool and leverages a suite of modern technologies for state management, UI, and backend services.
 
+## Roadmap Sync Rule
+- Always keep `LW_Portal_2.0/roadmap.md` and `LW_App/Roadmap.md` in sync when adding new features, reprioritizing work, or marking features complete.
+
+## Shared Groups Context
+- Groups 2.0 is already underway across the sibling Supabase migrations repo, this portal repo, and `LW_App`.
+- Supabase schema work is stored in the sibling `lwp/supabase/migrations` directory.
+- The current shared group backend already includes:
+  - `group_memberships`
+  - `groups_public_view`
+  - `groups_admin_view`
+  - `group_memberships_view`
+  - membership and leader-management RPCs
+- Group feed backend is also implemented with:
+  - `group_posts`
+  - `group_post_reactions`
+  - `group_posts_view`
+  - post and reaction RPCs
+- Mobile handoff details for the feed live in `LW_App/docs/groups-feed-handoff.md`.
+
+## Groups Implementation Notes
+- Portal member management for Connect & Serve belongs on the dedicated manage screen, not inside the CRUD modal.
+- The portal modal should stay limited to create/edit/delete behavior.
+- Group deletion depends on backend cascade behavior for memberships.
+- A previous `permission denied for table users` issue came from `security_invoker = on` on views that joined `auth.users`; the fix was applied in `20260606143000_fix_groups_view_permissions.sql`.
+- The group feed is a full-screen mobile experience. Future portal work should treat moderation as secondary, not as the primary authoring surface.
+
 ### Core Technology Stack
 - **Frontend Framework:** Vue 3 (Composition API)
 - **Language:** TypeScript
@@ -55,7 +81,8 @@ The project uses **top-level await** in `src/main.ts` to ensure authentication i
 3. **State Management:** Use Pinia stores for shared state. Stores should handle side effects (like API calls) by calling services.
 4. **Services Layer:** Abstract all Supabase and external API logic into dedicated service files in `src/services/`.
 5. **UI Consistency:** Use PrimeVue components and Tailwind CSS for styling to maintain a consistent look and feel.
-6. **Aliases:** Use defined path aliases for imports:
+6. **Component-First:** Before writing raw HTML elements (`<img>`, `<div>`, `<span>`) to implement a UI pattern, check whether PrimeVue or an existing `Lwp*` project component already covers it. For example: use PrimeVue `Avatar` (with `LwpImage` in its slot) instead of a raw `<img>` + `<div>` avatar combo; use `LwpImage` for any Cloudinary-backed image instead of a plain `<img src="...">`. Only fall back to raw HTML when no existing component fits.
+7. **Aliases:** Use defined path aliases for imports:
    - `@` -> `src/`
    - `@views` -> `src/views/`
    - `@components` -> `src/components/`

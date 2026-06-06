@@ -16,6 +16,7 @@ import RoleplayersView from '@views/roleplayers/RoleplayersView.vue'
 import EventsView from '@views/events/EventsView.vue'
 import SocialMediaView from '@views/social-media/SocialMediaView.vue'
 import ConnectServeView from '@views/connect-serve/ConnectServeView.vue'
+import ConnectServeManageView from '@views/connect-serve/ConnectServeManageView.vue'
 import VisionMissionView from '@views/vision-mission/VisionMissionView.vue'
 import TithesOfferingsView from '@views/tithes-offerings/TithesOfferingsView.vue'
 import PrayerRequestsView from '@views/prayer-requests/PrayerRequestsView.vue'
@@ -125,6 +126,12 @@ const router = createRouter({
       name: 'ConnectServe',
       component: ConnectServeView,
       meta: handleMeta(true, true, 'Connect & Serve'),
+    },
+    {
+      path: '/connect-serve/:id/manage',
+      name: 'ConnectServeManage',
+      component: ConnectServeManageView,
+      meta: handleMeta(true, true, 'Manage Group'),
     },
     {
       path: '/tithes-offerings',

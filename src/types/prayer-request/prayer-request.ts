@@ -7,6 +7,7 @@ export type PrayerRequest = {
   category: string
   body: string
   is_anonymous: boolean
+  is_private?: boolean
   status: PrayerRequestStatus
   moderation_note?: string
   approved_at?: string | null

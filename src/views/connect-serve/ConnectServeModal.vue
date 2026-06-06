@@ -28,8 +28,8 @@ const props = withDefaults(
 
 let initialValues: Partial<Group> = {}
 const isReady = ref(false)
-const bannerPublicId = ref<string | undefined>(props.group?.banner_public_id)
-const bannerUrl = ref<string | undefined>(props.group?.banner_url)
+const bannerPublicId = ref<string | undefined>(props.group?.banner_public_id ?? undefined)
+const bannerUrl = ref<string | undefined>(props.group?.banner_url ?? undefined)
 
 onBeforeMount(() => {
   initialValues = {
@@ -49,8 +49,15 @@ const resolver = ref(
       title: yup.string().required('Title is required'),
       description: yup.string().required('Description is required'),
       type: yup.string().required('Type is required'),
-      whatsappLink: yup.string().url('Must be a valid URL').nullable(),
-      location: yup.string().nullable(),
+      whatsappLink: yup
+        .string()
+        .transform((value) => value?.trim() || null)
+        .nullable()
+        .url('Must be a valid URL'),
+      location: yup
+        .string()
+        .transform((value) => value?.trim() || null)
+        .nullable(),
     }),
   ),
 )
@@ -65,20 +72,23 @@ const model = computed({
   set: (value: boolean) => emit('update:visible', value),
 })
 
-const modalTitle = computed(() => {
-  return props.group && props.group.id ? 'Update Connect & Serve Group' : 'Create Connect & Serve Group'
-})
+const modalTitle = computed(() =>
+  props.group?.id ? 'Update Connect & Serve Group' : 'Create Connect & Serve Group',
+)
 
-const isUpdating = computed(() => {
-  return props.group && props.group.id
-})
+const isUpdating = computed(() => Boolean(props.group?.id))
+
+const groupTypes = ref([
+  { label: 'Connect Group', value: GroupType.CONNECT },
+  { label: 'Serve Team', value: GroupType.SERVE },
+])
 
 const closeAndResetModal = (shouldRefresh: boolean = false) => {
   model.value = false
   emit('close', shouldRefresh)
 }
 
-const onFormSubmit = async ({ valid, values }: FormSubmitEvent<Group>) => {
+const onFormSubmit = async ({ valid, values }: FormSubmitEvent<Record<string, unknown>>) => {
   if (!valid) {
     toast.add({ severity: 'error', summary: 'Some inputs are invalid', life: 2000 })
     return
@@ -86,7 +96,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent<Group>) => {
 
   const payload = {
     ...props.group,
-    ...values,
+    ...(values as Partial<Group>),
     banner_public_id: bannerPublicId.value,
     banner_url: bannerUrl.value,
   }
@@ -102,7 +112,7 @@ const onFormSubmit = async ({ valid, values }: FormSubmitEvent<Group>) => {
   }
 }
 
-const onUpload = (info: any) => {
+const onUpload = (info: { public_id?: string; secure_url?: string }) => {
   bannerPublicId.value = info.public_id
   bannerUrl.value = info.secure_url
   toast.add({ severity: 'success', summary: 'Image uploaded', life: 2000 })
@@ -111,7 +121,8 @@ const onUpload = (info: any) => {
 const attemptDelete = (event: MouseEvent) => {
   confirm.require({
     target: event.currentTarget as HTMLElement,
-    message: 'Are you sure you want to delete this Group?',
+    message:
+      'Are you sure you want to delete this group? All leader and member memberships will be removed automatically.',
     icon: 'pi pi-info-circle',
     rejectProps: {
       label: 'Cancel',
@@ -131,11 +142,6 @@ const attemptDelete = (event: MouseEvent) => {
     },
   })
 }
-
-const groupTypes = ref([
-  { label: 'Connect Group', value: GroupType.CONNECT },
-  { label: 'Serve Team', value: GroupType.SERVE },
-])
 </script>
 
 <template>
@@ -215,7 +221,9 @@ const groupTypes = ref([
         }}</Message>
       </FormField>
 
-      <div class="flex items-center justify-between w-full mt-4 pt-4 border-t border-surface-200 dark:border-surface-700">
+      <div
+        class="flex items-center justify-between w-full mt-4 pt-4 border-t border-surface-200 dark:border-surface-700"
+      >
         <div>
           <Button
             v-if="isUpdating"

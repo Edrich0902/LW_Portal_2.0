@@ -1,14 +1,17 @@
-import type { GroupType } from "../groupType";
+import type { GroupType } from '@/types/groupType.ts'
 
 export type Group = {
-    id: string;
-    title: string;
-    description: string;
-    type: GroupType;
-    whatsappLink?: string;
-    location?: string;
-    banner_url?: string;
-    banner_public_id?: string;
-    updated_at?: string;
-    created_at?: string;
+  id: string
+  title: string
+  description: string
+  type: GroupType
+  whatsappLink?: string | null
+  location?: string | null
+  banner_url?: string | null
+  banner_public_id?: string | null
+  leader_count?: number
+  member_count?: number
+  pending_count?: number
+  updated_at?: string
+  created_at?: string
 }

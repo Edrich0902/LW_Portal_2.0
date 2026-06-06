@@ -4,6 +4,7 @@ import { debounce } from 'lodash'
 import type { DataTablePageEvent, DataTableRowClickEvent, DataTableSortEvent } from 'primevue'
 import { Status } from '@/types/status.ts'
 import moment from 'moment'
+import { useRoute, useRouter } from 'vue-router'
 import PageWrapper from '@components/page-wrapper/PageWrapper.vue'
 import LwpImage from '@components/lwp-image/LwpImage.vue'
 import LwpEmptyState from '@components/lwp-empty-state/LwpEmptyState.vue'
@@ -14,6 +15,8 @@ import ConnectServeModal from '@views/connect-serve/ConnectServeModal.vue'
 import type { Group } from '@/types/group/group.ts'
 
 const connectServeStore = useConnectServeStore()
+const route = useRoute()
+const router = useRouter()
 
 const dt = ref()
 const showModal = ref<boolean>(false)
@@ -21,6 +24,20 @@ const selectedItem = ref<Group>()
 
 onBeforeMount(async () => {
   await connectServeStore.initConnectServeGroups()
+
+  const editId = typeof route.query.edit === 'string' ? route.query.edit : ''
+  if (!editId) return
+
+  selectedItem.value = connectServeStore.data.find((group) => group.id === editId)
+  if (!selectedItem.value) {
+    await connectServeStore.loadConnectServeGroup(editId)
+    selectedItem.value = connectServeStore.currentGroup ?? undefined
+  }
+
+  if (selectedItem.value) {
+    showModal.value = true
+    await router.replace({ query: { ...route.query, edit: undefined } })
+  }
 })
 
 const searchText = ref<string>(connectServeStore.filter.searchText)
@@ -65,6 +82,11 @@ const onRowClick = (event: DataTableRowClickEvent) => {
 const onAdd = () => {
   selectedItem.value = undefined
   showModal.value = true
+}
+
+const onManage = async (event: MouseEvent, group: Group) => {
+  event.stopPropagation()
+  await router.push(`/connect-serve/${group.id}/manage`)
 }
 
 const onRefresh = async () => {
@@ -164,9 +186,27 @@ watch(searchText, (value) => {
         <template v-else-if="col.field === 'type'" #body="slotProps">
           <LwpStatusTag :value="slotProps.data[col.field]" />
         </template>
+        <template
+          v-else-if="
+            col.field === 'leader_count' ||
+            col.field === 'member_count' ||
+            col.field === 'pending_count'
+          "
+          #body="slotProps"
+        >
+          <Tag severity="secondary">{{ slotProps.data[col.field] ?? 0 }}</Tag>
+        </template>
         <template v-else-if="col.field === 'description'" #body="slotProps">
           <div class="max-w-xs truncate" :title="slotProps.data[col.field]">
             {{ slotProps.data[col.field] }}
+          </div>
+        </template>
+        <template
+          v-else-if="col.field === 'whatsappLink' || col.field === 'location'"
+          #body="slotProps"
+        >
+          <div class="max-w-xs truncate" :title="slotProps.data[col.field]">
+            {{ slotProps.data[col.field] || 'N/A' }}
           </div>
         </template>
         <template
@@ -178,6 +218,18 @@ watch(searchText, (value) => {
               ? moment(slotProps.data[col.field]).format('DD MMM YYYY HH:mm:ss')
               : 'N/A'
           }}
+        </template>
+      </Column>
+      <Column header="Manage" :exportable="false" style="width: 8rem">
+        <template #body="slotProps">
+          <Button
+            label="Manage"
+            icon="pi pi-users"
+            size="small"
+            severity="secondary"
+            variant="outlined"
+            @click="onManage($event, slotProps.data)"
+          />
         </template>
       </Column>
     </DataTable>

@@ -4,11 +4,16 @@ import { Status } from '@/types/status.ts'
 import type { LwpPagination } from '@/types/lwpPagination.ts'
 import type { LwpSort } from '@/types/lwpSort.ts'
 import type { PrayerRequest, PrayerRequestStatus } from '@/types/prayer-request/prayer-request.ts'
+import type { PrayerRequestNote } from '@/types/prayer-request/prayer-request-note.ts'
 import {
   buildModerationPayload,
   sbGetPrayerRequestCounts,
   sbQueryPrayerRequests,
   sbUpdatePrayerRequest,
+  sbFetchPrayerRequestNotes,
+  sbAddPrayerRequestNote,
+  sbDeletePrayerRequestNote,
+  sbTogglePrayerRequestPrivate,
 } from '@services/prayer-requests/prayer-requests-service.ts'
 import { useToast } from 'primevue/usetoast'
 import { useAuthStore } from '@stores/auth/auth.store.ts'
@@ -29,10 +34,12 @@ export const usePrayerRequestsStore = defineStore('prayerRequestsStore', () => {
     searchText: string
     status: string
     category: string
+    isPrivate: string
   }>({
     searchText: '',
     status: '',
     category: '',
+    isPrivate: '',
   })
   const pagination = ref<LwpPagination>({
     from: 0,
@@ -50,11 +57,16 @@ export const usePrayerRequestsStore = defineStore('prayerRequestsStore', () => {
     { header: 'Email', field: 'email', sortable: true },
     { header: 'Category', field: 'category', sortable: true },
     { header: 'Anonymous', field: 'is_anonymous', sortable: true },
+    { header: 'Private', field: 'is_private', sortable: true },
     { header: 'Status', field: 'status', sortable: true },
     { header: 'Prayer Count', field: 'reaction_count', sortable: true },
     { header: 'Created At', field: 'created_at', sortable: true },
     { header: 'Updated At', field: 'updated_at', sortable: true },
   ])
+
+  const notes = ref<PrayerRequestNote[]>([])
+  const notesStatus = ref<Status>(Status.UNINITIALIZED)
+  const notesActionStatus = ref<Status>(Status.OK)
 
   const initPrayerRequests = async () => {
     status.value = Status.LOADING
@@ -114,6 +126,77 @@ export const usePrayerRequestsStore = defineStore('prayerRequestsStore', () => {
     await Promise.all([queryPrayerRequests(), fetchCounts()])
   }
 
+  const togglePrivate = async (id: string, isPrivate: boolean) => {
+    modalStatus.value = Status.LOADING
+    const response = await sbTogglePrayerRequestPrivate(id, isPrivate)
+
+    if (response.error !== undefined) {
+      modalStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Error Updating Prayer Request', life: 2000 })
+      return
+    }
+
+    const idx = data.value.findIndex((r) => r.id === id)
+    if (idx !== -1) {
+      data.value[idx] = { ...data.value[idx], is_private: isPrivate }
+    }
+
+    modalStatus.value = Status.OK
+    toast.add({
+      severity: 'success',
+      summary: isPrivate ? 'Marked as Private' : 'Marked as Public',
+      life: 2000,
+    })
+  }
+
+  const fetchNotes = async (prayerRequestId: string) => {
+    notesStatus.value = Status.LOADING
+    const response = await sbFetchPrayerRequestNotes(prayerRequestId)
+
+    if (response.error) {
+      notes.value = []
+      notesStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Error Loading Notes', life: 2000 })
+      return
+    }
+
+    notes.value = response.data
+    notesStatus.value = Status.OK
+  }
+
+  const addNote = async (prayerRequestId: string, body: string) => {
+    const currentUserId = auth.user?.id
+    if (!currentUserId) return
+
+    notesActionStatus.value = Status.LOADING
+    const response = await sbAddPrayerRequestNote(prayerRequestId, body, currentUserId)
+
+    if (response.error) {
+      notesActionStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Error Adding Note', life: 2000 })
+      return
+    }
+
+    toast.add({ severity: 'success', summary: 'Note Added', life: 2000 })
+    await fetchNotes(prayerRequestId)
+    notesActionStatus.value = Status.OK
+  }
+
+  const deleteNote = async (noteId: string, prayerRequestId: string) => {
+    notesActionStatus.value = Status.LOADING
+    const response = await sbDeletePrayerRequestNote(noteId)
+
+    if (response.error) {
+      notesActionStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Error Deleting Note', life: 2000 })
+      return
+    }
+
+    toast.add({ severity: 'success', summary: 'Note Deleted', life: 2000 })
+    await fetchNotes(prayerRequestId)
+    notesActionStatus.value = Status.OK
+  }
+
   const pagePrayerRequests = async (updatedPagination: LwpPagination) => {
     pagination.value = updatedPagination
     await queryPrayerRequests()
@@ -128,6 +211,7 @@ export const usePrayerRequestsStore = defineStore('prayerRequestsStore', () => {
     searchText: string
     status: string
     category: string
+    isPrivate: string
   }) => {
     filter.value = updatedFilter
     pagination.value = {
@@ -149,10 +233,17 @@ export const usePrayerRequestsStore = defineStore('prayerRequestsStore', () => {
     sort,
     pagination,
     tableColumns,
+    notes,
+    notesStatus,
+    notesActionStatus,
     initPrayerRequests,
     fetchCounts,
     queryPrayerRequests,
     moderatePrayerRequest,
+    togglePrivate,
+    fetchNotes,
+    addNote,
+    deleteNote,
     pagePrayerRequests,
     sortPrayerRequests,
     filterPrayerRequests,
