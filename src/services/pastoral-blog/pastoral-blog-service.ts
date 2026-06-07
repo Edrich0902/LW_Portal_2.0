@@ -89,3 +89,22 @@ export const sbDeletePastoralPost = async (
 
   return { data: undefined, error: undefined }
 }
+
+export const sbGetLatestPastoralPost = async (): Promise<PastoralPost | null> => {
+  const { data, error } = await supabase
+    .from('pastoral_posts_view')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single<PastoralPost>()
+
+  if (error) {
+    if (error.code !== 'PGRST116') {
+      console.error('Error fetching latest blog post:', error.code, error.message)
+    }
+    return null
+  }
+
+  return data
+}
+

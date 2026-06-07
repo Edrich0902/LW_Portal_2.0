@@ -5,12 +5,14 @@ import { Status } from '@/types/status.ts'
 import type { Event } from '@/types/event/event.ts'
 import type { Announcement } from '@/types/announcement/announcement.ts'
 import type { Sermon } from '@/types/sermon/sermon.ts'
+import type { PastoralPost } from '@/types/pastoral-blog/pastoral-post.ts'
 import { sbFetchAllEvents } from '@services/events/events-service.ts'
 import {
   sbGetLatestAnnouncements,
   sbGetPendingAnnouncementsCount,
 } from '@services/announcements/announcement-service.ts'
 import { sbGetLatestSermon } from '@services/sermons/sermon-service.ts'
+import { sbGetLatestPastoralPost } from '@services/pastoral-blog/pastoral-blog-service.ts'
 import { sbGetPrayerRequestCounts } from '@services/prayer-requests/prayer-requests-service.ts'
 import { useUsersStore } from '@stores/users/users.store.ts'
 
@@ -21,6 +23,7 @@ export const useDashboardStore = defineStore('dashboardStore', () => {
   const events = ref<Event[]>([])
   const latestAnnouncements = ref<Announcement[]>([])
   const latestSermon = ref<Sermon | null>(null)
+  const latestBlogPost = ref<PastoralPost | null>(null)
   const pendingAnnouncementsCount = ref(0)
   const pendingPrayerCount = ref(0)
 
@@ -53,6 +56,7 @@ export const useDashboardStore = defineStore('dashboardStore', () => {
       sbGetLatestSermon(),
       sbGetPendingAnnouncementsCount(),
       sbGetPrayerRequestCounts(),
+      sbGetLatestPastoralPost(),
     ])
 
     if (results[1].status === 'fulfilled') events.value = results[1].value
@@ -60,6 +64,7 @@ export const useDashboardStore = defineStore('dashboardStore', () => {
     if (results[3].status === 'fulfilled') latestSermon.value = results[3].value
     if (results[4].status === 'fulfilled') pendingAnnouncementsCount.value = results[4].value
     if (results[5].status === 'fulfilled') pendingPrayerCount.value = results[5].value.pending
+    if (results[6].status === 'fulfilled') latestBlogPost.value = results[6].value
 
     status.value = Status.OK
   }
@@ -68,6 +73,7 @@ export const useDashboardStore = defineStore('dashboardStore', () => {
     status,
     latestAnnouncements,
     latestSermon,
+    latestBlogPost,
     pendingAnnouncementsCount,
     pendingPrayerCount,
     activeEvents,
