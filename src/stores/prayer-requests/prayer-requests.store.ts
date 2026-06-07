@@ -93,6 +93,7 @@ export const usePrayerRequestsStore = defineStore('prayerRequestsStore', () => {
     prayerRequest: PrayerRequest,
     nextStatus: PrayerRequestStatus,
     moderationNote?: string,
+    praiseReport?: string,
   ) => {
     modalStatus.value = Status.LOADING
     const currentUserId = auth.user?.id
@@ -107,6 +108,7 @@ export const usePrayerRequestsStore = defineStore('prayerRequestsStore', () => {
       nextStatus,
       currentUserId,
       moderationNote,
+      praiseReport,
     )
     const response = await sbUpdatePrayerRequest(payload)
 

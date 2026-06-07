@@ -19,6 +19,7 @@ export type PrayerRequest = {
   created_at?: string
   updated_at?: string
   reaction_count?: number
+  praise_report?: string
 }
 
 export enum PrayerRequestStatus {

@@ -100,12 +100,14 @@ export const buildModerationPayload = (
   status: PrayerRequestStatus,
   userId: string,
   moderationNote?: string,
+  praiseReport?: string,
 ): PrayerRequest => {
   const now = new Date().toISOString()
   const payload: PrayerRequest = {
     id: prayerRequest.id,
     status,
     moderation_note: moderationNote ?? prayerRequest.moderation_note,
+    praise_report: praiseReport ?? prayerRequest.praise_report,
     updated_at: now,
   } as PrayerRequest
 

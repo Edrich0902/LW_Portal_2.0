@@ -34,12 +34,14 @@ const model = computed({
 
 const activeTab = ref('details')
 const moderationNote = ref(props.prayerRequest?.moderation_note ?? '')
+const praiseReport = ref(props.prayerRequest?.praise_report ?? '')
 const noteBody = ref('')
 
 watch(
   () => props.prayerRequest,
   (value) => {
     moderationNote.value = value?.moderation_note ?? ''
+    praiseReport.value = value?.praise_report ?? ''
   },
   { immediate: true },
 )
@@ -63,7 +65,12 @@ const closeAndRefresh = (refresh = false) => {
 
 const handleAction = async (nextStatus: PrayerRequestStatus) => {
   if (!props.prayerRequest) return
-  await store.moderatePrayerRequest(props.prayerRequest, nextStatus, moderationNote.value.trim())
+  await store.moderatePrayerRequest(
+    props.prayerRequest,
+    nextStatus,
+    moderationNote.value.trim(),
+    praiseReport.value.trim(),
+  )
   if (store.modalStatus === Status.OK) closeAndRefresh(true)
 }
 
@@ -175,6 +182,11 @@ const displayName = computed(() => {
               <div class="flex flex-col gap-2">
                 <label class="text-sm text-surface-500" for="moderation_note">Moderation Note</label>
                 <Textarea id="moderation_note" v-model="moderationNote" rows="4" fluid />
+              </div>
+
+              <div v-if="prayerRequest.status === 'resolved' || praiseReport" class="flex flex-col gap-2">
+                <label class="text-sm text-surface-500" for="praise_report">Praise Report / Testimony</label>
+                <Textarea id="praise_report" v-model="praiseReport" rows="4" fluid />
               </div>
 
               <div class="flex flex-wrap justify-end gap-2 pt-2">
