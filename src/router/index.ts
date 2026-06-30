@@ -24,6 +24,7 @@ import EventOverviewView from '@views/events/EventOverviewView.vue'
 import AppFeedbackView from '@views/app-feedback/AppFeedbackView.vue'
 import PastoralBlogView from '@views/pastoral-blog/PastoralBlogView.vue'
 import PastoralBlogEditView from '@views/pastoral-blog/PastoralBlogEditView.vue'
+import PastoralBlogReadView from '@views/pastoral-blog/PastoralBlogReadView.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -164,6 +165,13 @@ const router = createRouter({
       name: 'PastoralBlog',
       component: PastoralBlogView,
       meta: handleMeta(true, true, 'Pastoral Blog'),
+    },
+    {
+      path: '/pastoral-blog/:id',
+      name: 'PastoralBlogRead',
+      component: PastoralBlogReadView,
+      props: true,
+      meta: handleMeta(true, true, 'View Post'),
     },
     {
       path: '/pastoral-blog/new',

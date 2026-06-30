@@ -27,6 +27,10 @@ const onEdit = (post: PastoralPost) => {
   router.push({ name: 'PastoralBlogEdit', params: { id: post.id } })
 }
 
+const onView = (post: PastoralPost) => {
+  router.push({ name: 'PastoralBlogRead', params: { id: post.id } })
+}
+
 const onTogglePublish = async (post: PastoralPost) => {
   await store.setPublished(post.id, !post.is_published)
 }
@@ -133,9 +137,18 @@ const onDelete = (event: MouseEvent, post: PastoralPost) => {
         </template>
       </Column>
 
-      <Column header="" style="width: 160px">
+      <Column header="" style="width: 200px">
         <template #body="{ data }">
           <div class="flex flex-row items-center justify-end gap-1.5">
+            <Button
+              v-tooltip.top="'View'"
+              icon="pi pi-eye"
+              size="small"
+              severity="secondary"
+              text
+              rounded
+              @click="onView(data)"
+            />
             <Button
               v-tooltip.top="'Edit'"
               icon="pi pi-pencil"
