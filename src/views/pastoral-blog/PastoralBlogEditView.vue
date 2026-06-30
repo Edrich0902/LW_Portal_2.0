@@ -140,21 +140,24 @@ const onCancel = () => {
         />
 
         <!-- Cover image: inline, subtle -->
-        <div v-if="coverImagePublicId" class="relative rounded-xl overflow-hidden shadow-md">
+        <div v-if="coverImagePublicId" class="cover-image-frame relative rounded-xl overflow-hidden shadow-md">
           <LwpImage
             :public-id="coverImagePublicId"
             :width="800"
             :height="300"
-            class-name="w-full h-52 object-cover"
+            class-name="w-full h-full"
           />
-          <Button
-            icon="pi pi-times"
-            size="small"
-            severity="secondary"
-            rounded
-            class="absolute top-3 right-3 !bg-black/40 !border-none !text-white hover:!bg-black/60"
-            @click="onRemoveCover"
-          />
+          <div class="absolute top-3 right-3 z-10">
+            <Button
+              label="Remove image"
+              icon="pi pi-trash"
+              size="small"
+              severity="contrast"
+              outlined
+              class="cover-remove-button"
+              @click="onRemoveCover"
+            />
+          </div>
         </div>
         <div v-else>
           <LwpImageUploader label="Add cover image" @uploaded="onUpload" class="cover-uploader" />
@@ -255,5 +258,44 @@ const onCancel = () => {
 .dark .cover-uploader :deep(.p-button):hover {
   background: var(--p-surface-800) !important;
   color: var(--p-surface-300) !important;
+}
+
+.cover-image-frame {
+  height: 13rem;
+}
+
+.cover-image-frame :deep(.relative) {
+  width: 100%;
+  height: 100%;
+}
+
+.cover-remove-button {
+  backdrop-filter: blur(12px);
+}
+
+.cover-remove-button :deep(.p-button) {
+  background: color-mix(in srgb, var(--p-surface-0) 78%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--p-surface-0) 30%, var(--p-surface-900) 12%) !important;
+  color: var(--p-surface-700) !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.cover-remove-button :deep(.p-button:hover) {
+  background: color-mix(in srgb, var(--p-red-50) 88%, var(--p-surface-0) 12%) !important;
+  border-color: color-mix(in srgb, var(--p-red-200) 82%, transparent) !important;
+  color: var(--p-red-600) !important;
+}
+
+.dark .cover-remove-button :deep(.p-button) {
+  background: color-mix(in srgb, var(--p-surface-900) 72%, transparent) !important;
+  border-color: color-mix(in srgb, var(--p-surface-0) 16%, transparent) !important;
+  color: var(--p-surface-100) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+}
+
+.dark .cover-remove-button :deep(.p-button:hover) {
+  background: color-mix(in srgb, var(--p-red-900) 56%, var(--p-surface-900) 44%) !important;
+  border-color: color-mix(in srgb, var(--p-red-500) 32%, transparent) !important;
+  color: var(--p-red-200) !important;
 }
 </style>
