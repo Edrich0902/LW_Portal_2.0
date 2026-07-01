@@ -114,28 +114,50 @@ watch([selectedStatus, selectedCategory, selectedPrivacy], async () => {
 <template>
   <PageWrapper show-toolbar title="Prayer Requests" class="flex flex-col">
     <template #search>
-      <IconField class="w-full">
+      <IconField>
         <InputIcon class="pi pi-search" />
-        <InputText v-model="searchText" placeholder="Search prayer requests..." fluid />
+        <InputText v-model="searchText" placeholder="Search prayer requests..." />
       </IconField>
     </template>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
       <Card>
-        <template #content><div class="text-sm text-surface-500">Pending</div><div class="text-2xl font-semibold">{{ prayerRequestsStore.counts.pending }}</div></template>
+        <template #content
+          ><div class="text-sm text-surface-500">Pending</div>
+          <div class="text-2xl font-semibold">
+            {{ prayerRequestsStore.counts.pending }}
+          </div></template
+        >
       </Card>
       <Card>
-        <template #content><div class="text-sm text-surface-500">Approved</div><div class="text-2xl font-semibold">{{ prayerRequestsStore.counts.approved }}</div></template>
+        <template #content
+          ><div class="text-sm text-surface-500">Approved</div>
+          <div class="text-2xl font-semibold">
+            {{ prayerRequestsStore.counts.approved }}
+          </div></template
+        >
       </Card>
       <Card>
-        <template #content><div class="text-sm text-surface-500">Rejected</div><div class="text-2xl font-semibold">{{ prayerRequestsStore.counts.rejected }}</div></template>
+        <template #content
+          ><div class="text-sm text-surface-500">Rejected</div>
+          <div class="text-2xl font-semibold">
+            {{ prayerRequestsStore.counts.rejected }}
+          </div></template
+        >
       </Card>
       <Card>
-        <template #content><div class="text-sm text-surface-500">Resolved</div><div class="text-2xl font-semibold">{{ prayerRequestsStore.counts.resolved }}</div></template>
+        <template #content
+          ><div class="text-sm text-surface-500">Resolved</div>
+          <div class="text-2xl font-semibold">
+            {{ prayerRequestsStore.counts.resolved }}
+          </div></template
+        >
       </Card>
     </div>
 
-    <div class="mb-4 rounded-2xl border border-surface-200 dark:border-surface-800 bg-surface-0 dark:bg-surface-900 p-4">
+    <div
+      class="mb-4 rounded-2xl border border-surface-200 dark:border-surface-800 bg-surface-0 dark:bg-surface-900 p-4"
+    >
       <div class="flex flex-col md:flex-row md:items-center gap-3">
         <div class="min-w-0 md:w-36">
           <p class="text-sm font-medium text-surface-500">Filters</p>
@@ -233,12 +255,18 @@ watch([selectedStatus, selectedCategory, selectedPrivacy], async () => {
       >
         <template v-if="col.field === 'first_name'" #body="slotProps">
           <div class="font-medium">
-            {{ `${slotProps.data.first_name ?? ''} ${slotProps.data.last_name ?? ''}`.trim() || 'Unknown User' }}
+            {{
+              `${slotProps.data.first_name ?? ''} ${slotProps.data.last_name ?? ''}`.trim() ||
+              'Unknown User'
+            }}
           </div>
         </template>
         <template v-else-if="col.field === 'category'" #body="slotProps">
           <LwpStatusTag
-            :value="prayerCategoryLabels[slotProps.data.category as PrayerCategory] || slotProps.data.category"
+            :value="
+              prayerCategoryLabels[slotProps.data.category as PrayerCategory] ||
+              slotProps.data.category
+            "
           />
         </template>
         <template v-else-if="col.field === 'status'" #body="slotProps">

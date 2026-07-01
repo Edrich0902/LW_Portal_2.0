@@ -124,9 +124,9 @@ watch([selectedStatus, selectedCategory], async () => {
 <template>
   <PageWrapper show-toolbar title="App Feedback" class="flex flex-col">
     <template #search>
-      <IconField class="w-full">
+      <IconField>
         <InputIcon class="pi pi-search" />
-        <InputText v-model="searchText" placeholder="Search feedback..." fluid />
+        <InputText v-model="searchText" placeholder="Search feedback..." />
       </IconField>
     </template>
 
@@ -163,7 +163,9 @@ watch([selectedStatus, selectedCategory], async () => {
       </Card>
     </div>
 
-    <div class="mb-4 rounded-2xl border border-surface-200 dark:border-surface-800 bg-surface-0 dark:bg-surface-900 p-4">
+    <div
+      class="mb-4 rounded-2xl border border-surface-200 dark:border-surface-800 bg-surface-0 dark:bg-surface-900 p-4"
+    >
       <div class="flex flex-col md:flex-row md:items-center gap-3">
         <div class="min-w-0 md:w-36">
           <p class="text-sm font-medium text-surface-500">Filters</p>
@@ -253,12 +255,18 @@ watch([selectedStatus, selectedCategory], async () => {
         </template>
         <template v-else-if="col.field === 'first_name'" #body="slotProps">
           <div class="font-medium">
-            {{ `${slotProps.data.first_name ?? ''} ${slotProps.data.last_name ?? ''}`.trim() || 'Unknown User' }}
+            {{
+              `${slotProps.data.first_name ?? ''} ${slotProps.data.last_name ?? ''}`.trim() ||
+              'Unknown User'
+            }}
           </div>
         </template>
         <template v-else-if="col.field === 'category'" #body="slotProps">
           <LwpStatusTag
-            :value="feedbackCategoryLabels[slotProps.data.category as FeedbackCategory] || slotProps.data.category"
+            :value="
+              feedbackCategoryLabels[slotProps.data.category as FeedbackCategory] ||
+              slotProps.data.category
+            "
           />
         </template>
         <template v-else-if="col.field === 'status'" #body="slotProps">
@@ -287,10 +295,7 @@ watch([selectedStatus, selectedCategory], async () => {
             </Select>
           </div>
         </template>
-        <template
-          v-else-if="col.field === 'created_at'"
-          #body="slotProps"
-        >
+        <template v-else-if="col.field === 'created_at'" #body="slotProps">
           {{
             slotProps.data[col.field]
               ? moment(slotProps.data[col.field]).format('DD MMM YYYY HH:mm:ss')

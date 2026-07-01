@@ -15,7 +15,7 @@ const auth = useAuthStore()
 const confirm = useConfirm()
 const router = useRouter()
 
-const menu = ref();
+const menu = ref()
 
 const items = ref([
   {
@@ -25,10 +25,10 @@ const items = ref([
         label: 'Logout',
         icon: 'pi pi-sign-out',
         command: async (event: MenuItemCommandEvent) => await handleSignOut(event),
-      }
-    ]
-  }
-]);
+      },
+    ],
+  },
+])
 
 const handleSignOut = async (event: MenuItemCommandEvent) => {
   confirm.require({
@@ -46,19 +46,26 @@ const handleSignOut = async (event: MenuItemCommandEvent) => {
     },
     accept: async () => {
       const success = await auth.signOut()
-      if (success) await router.replace('/');
+      if (success) await router.replace('/')
     },
-    reject: () => {}
+    reject: () => {},
   })
 }
 
 const toggle = (event: Event) => {
-  menu.value.toggle(event);
-};
+  menu.value.toggle(event)
+}
 </script>
 
 <template>
-  <Avatar class="cursor-pointer hover:opacity-75" shape="circle" size="large" aria-haspopup="true" aria-controls="overlay_menu" @click="toggle">
+  <Avatar
+    class="cursor-pointer hover:opacity-75 shrink-0"
+    shape="circle"
+    size="large"
+    aria-haspopup="true"
+    aria-controls="overlay_menu"
+    @click="toggle"
+  >
     <LwpImage
       :public-id="props.user?.profile_public_id"
       :height="250"
