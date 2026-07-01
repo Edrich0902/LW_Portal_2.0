@@ -48,6 +48,23 @@ const categoryOptions = [
   })),
 ]
 
+const quickStatusOptions = Object.values(FeedbackStatus).map((value) => ({
+  label: feedbackStatusLabels[value as FeedbackStatus],
+  value,
+}))
+
+const updatingRowId = ref<string | null>(null)
+
+const handleQuickStatusChange = async (feedback: AppFeedback, nextStatus: FeedbackStatus) => {
+  if (!feedback.id) return
+  updatingRowId.value = feedback.id
+  try {
+    await store.updateAppFeedback(feedback, nextStatus, feedback.admin_note ?? undefined)
+  } finally {
+    updatingRowId.value = null
+  }
+}
+
 const applyFilters = async () => {
   await store.filterAppFeedback({
     searchText: searchText.value,
@@ -245,7 +262,30 @@ watch([selectedStatus, selectedCategory], async () => {
           />
         </template>
         <template v-else-if="col.field === 'status'" #body="slotProps">
-          <LwpStatusTag :value="slotProps.data[col.field]" />
+          <div @click.stop class="w-44">
+            <Select
+              v-model="slotProps.data.status"
+              :options="quickStatusOptions"
+              optionLabel="label"
+              optionValue="value"
+              :disabled="updatingRowId === slotProps.data.id"
+              @change="(e) => handleQuickStatusChange(slotProps.data, e.value)"
+              class="w-full"
+              size="small"
+            >
+              <template #value="valProps">
+                <div v-if="valProps.value" class="flex items-center">
+                  <LwpStatusTag :value="valProps.value" />
+                </div>
+                <span v-else class="text-xs">{{ valProps.placeholder }}</span>
+              </template>
+              <template #option="optProps">
+                <div class="flex items-center py-0.5">
+                  <LwpStatusTag :value="optProps.option.value" />
+                </div>
+              </template>
+            </Select>
+          </div>
         </template>
         <template
           v-else-if="col.field === 'created_at'"
@@ -268,3 +308,23 @@ watch([selectedStatus, selectedCategory], async () => {
     />
   </PageWrapper>
 </template>
+
+<style scoped>
+:deep(.p-select) {
+  padding: 2px !important;
+  min-height: 0 !important;
+  border-radius: 0.5rem !important;
+}
+:deep(.p-select-label) {
+  padding: 0 0.25rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+:deep(.p-select-dropdown) {
+  width: 1.5rem !important;
+}
+:deep(.p-select .p-tag) {
+  padding: 0.125rem 0.4rem !important;
+  height: auto !important;
+}
+</style>
