@@ -10,11 +10,44 @@ import {
   sbDeletePastoralPost,
 } from '@services/pastoral-blog/pastoral-blog-service.ts'
 import { useToast } from 'primevue/usetoast'
+import {
+  EMPTY_PASTORAL_CONTENT,
+  normalizePastoralTitle,
+} from '@/utils/pastoral-blog-content.ts'
+
+export type PastoralAutosaveStatus = 'idle' | 'saving' | 'saved' | 'error'
+
+type PostPayload = {
+  title: string
+  content: string
+  coverImageUrl?: string | null
+  coverImagePublicId?: string | null
+}
+
+const normalizePayload = (payload: PostPayload): PostPayload => ({
+  title: normalizePastoralTitle(payload.title),
+  content: payload.content,
+  coverImageUrl: payload.coverImageUrl ?? null,
+  coverImagePublicId: payload.coverImagePublicId ?? null,
+})
+
+const upsertPostInList = (posts: PastoralPost[], updated: PastoralPost): PastoralPost[] => {
+  const index = posts.findIndex((post) => post.id === updated.id)
+  if (index === -1) {
+    return [updated, ...posts]
+  }
+
+  const next = [...posts]
+  next[index] = { ...next[index], ...updated }
+  return next
+}
 
 export const usePastoralBlogStore = defineStore('pastoralBlogStore', () => {
   const toast = useToast()
   const postsStatus = ref<Status>(Status.UNINITIALIZED)
   const actionStatus = ref<Status>(Status.OK)
+  const autosaveStatus = ref<PastoralAutosaveStatus>('idle')
+  const lastSavedAt = ref<Date | null>(null)
   const posts = ref<PastoralPost[]>([])
 
   const loadPosts = async () => {
@@ -30,14 +63,51 @@ export const usePastoralBlogStore = defineStore('pastoralBlogStore', () => {
     postsStatus.value = Status.OK
   }
 
-  const createPost = async (payload: {
-    title: string
-    content: string
-    coverImageUrl?: string | null
-    coverImagePublicId?: string | null
-  }): Promise<boolean> => {
+  const createDraftPost = async (): Promise<string | null> => {
     actionStatus.value = Status.LOADING
-    const response = await sbCreatePastoralPost(payload)
+    const response = await sbCreatePastoralPost({
+      title: 'Untitled',
+      content: EMPTY_PASTORAL_CONTENT,
+      coverImageUrl: null,
+      coverImagePublicId: null,
+    })
+
+    if (response.error || !response.data) {
+      actionStatus.value = Status.ERROR
+      toast.add({ severity: 'error', summary: 'Could Not Create Draft', life: 3000 })
+      return null
+    }
+
+    posts.value = upsertPostInList(posts.value, response.data)
+    actionStatus.value = Status.OK
+    autosaveStatus.value = 'saved'
+    lastSavedAt.value = new Date()
+    return response.data.id
+  }
+
+  const autosavePost = async (postId: string, payload: PostPayload): Promise<boolean> => {
+    autosaveStatus.value = 'saving'
+    const response = await sbUpdatePastoralPost(postId, normalizePayload(payload))
+
+    if (response.error || !response.data) {
+      autosaveStatus.value = 'error'
+      return false
+    }
+
+    posts.value = upsertPostInList(posts.value, response.data)
+    autosaveStatus.value = 'saved'
+    lastSavedAt.value = new Date()
+    return true
+  }
+
+  const markAutosaveSaved = () => {
+    autosaveStatus.value = 'saved'
+    lastSavedAt.value = new Date()
+  }
+
+  const createPost = async (payload: PostPayload): Promise<boolean> => {
+    actionStatus.value = Status.LOADING
+    const response = await sbCreatePastoralPost(normalizePayload(payload))
 
     if (response.error) {
       actionStatus.value = Status.ERROR
@@ -45,23 +115,18 @@ export const usePastoralBlogStore = defineStore('pastoralBlogStore', () => {
       return false
     }
 
+    if (response.data) {
+      posts.value = upsertPostInList(posts.value, response.data)
+    }
+
     actionStatus.value = Status.OK
     toast.add({ severity: 'success', summary: 'Post Created', life: 3000 })
-    await loadPosts()
     return true
   }
 
-  const updatePost = async (
-    postId: string,
-    payload: {
-      title: string
-      content: string
-      coverImageUrl?: string | null
-      coverImagePublicId?: string | null
-    },
-  ): Promise<boolean> => {
+  const updatePost = async (postId: string, payload: PostPayload): Promise<boolean> => {
     actionStatus.value = Status.LOADING
-    const response = await sbUpdatePastoralPost(postId, payload)
+    const response = await sbUpdatePastoralPost(postId, normalizePayload(payload))
 
     if (response.error) {
       actionStatus.value = Status.ERROR
@@ -69,9 +134,12 @@ export const usePastoralBlogStore = defineStore('pastoralBlogStore', () => {
       return false
     }
 
+    if (response.data) {
+      posts.value = upsertPostInList(posts.value, response.data)
+    }
+
     actionStatus.value = Status.OK
     toast.add({ severity: 'success', summary: 'Post Updated', life: 3000 })
-    await loadPosts()
     return true
   }
 
@@ -120,8 +188,13 @@ export const usePastoralBlogStore = defineStore('pastoralBlogStore', () => {
   return {
     postsStatus,
     actionStatus,
+    autosaveStatus,
+    lastSavedAt,
     posts,
     loadPosts,
+    createDraftPost,
+    autosavePost,
+    markAutosaveSaved,
     createPost,
     updatePost,
     setPublished,

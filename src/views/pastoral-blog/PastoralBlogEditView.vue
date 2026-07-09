@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import moment from 'moment'
 import PageWrapper from '@components/page-wrapper/PageWrapper.vue'
 import LwpImageUploader from '@components/lwp-image/LwpImageUploader.vue'
 import LwpImage from '@components/lwp-image/LwpImage.vue'
 import LwpQuillEditor from '@components/lwp-quill-editor/LwpQuillEditor.vue'
 import { usePastoralBlogStore } from '@stores/pastoral-blog/pastoral-blog.store.ts'
+import { usePastoralBlogAutosave } from '@/composables/usePastoralBlogAutosave.ts'
+import { EMPTY_PASTORAL_CONTENT } from '@/utils/pastoral-blog-content.ts'
 import { Status } from '@/types/status.ts'
 
 const props = defineProps<{
@@ -15,30 +18,100 @@ const props = defineProps<{
 const store = usePastoralBlogStore()
 const router = useRouter()
 
-const isEditing = computed(() => !!props.id)
-const pageTitle = computed(() => (isEditing.value ? 'Edit Post' : 'New Post'))
+const postId = ref<string | undefined>(props.id)
+const isBootstrapping = ref(true)
+const isHydrated = ref(false)
+const isPublishing = ref(false)
 
 const title = ref('')
-const content = ref('')
+const content = ref(EMPTY_PASTORAL_CONTENT)
 const coverImageUrl = ref<string | null>(null)
 const coverImagePublicId = ref<string | null>(null)
 const isPublished = ref(false)
+
+const { markSnapshotSaved } = usePastoralBlogAutosave({
+  postId,
+  title,
+  content,
+  coverImageUrl,
+  coverImagePublicId,
+  isHydrated,
+})
+
+const hydrateFromPost = (id: string) => {
+  const existing = store.posts.find((post) => post.id === id)
+  if (!existing) return false
+
+  title.value = existing.title
+  content.value = existing.content
+  coverImageUrl.value = existing.cover_image_url ?? null
+  coverImagePublicId.value = existing.cover_image_public_id ?? null
+  isPublished.value = existing.is_published
+
+  markSnapshotSaved({
+    title: existing.title,
+    content: existing.content,
+    coverImageUrl: existing.cover_image_url ?? null,
+    coverImagePublicId: existing.cover_image_public_id ?? null,
+  })
+
+  return true
+}
 
 onBeforeMount(async () => {
   if (store.postsStatus === Status.UNINITIALIZED) {
     await store.loadPosts()
   }
 
-  if (isEditing.value) {
-    const existing = store.posts.find((p) => p.id === props.id)
-    if (existing) {
-      title.value = existing.title
-      content.value = existing.content
-      coverImageUrl.value = existing.cover_image_url ?? null
-      coverImagePublicId.value = existing.cover_image_public_id ?? null
-      isPublished.value = existing.is_published
+  if (props.id) {
+    postId.value = props.id
+    if (!hydrateFromPost(props.id)) {
+      await store.loadPosts()
+      hydrateFromPost(props.id)
     }
+    isBootstrapping.value = false
+    isHydrated.value = true
+    return
   }
+
+  const draftId = await store.createDraftPost()
+  if (!draftId) {
+    isBootstrapping.value = false
+    return
+  }
+
+  postId.value = draftId
+  await router.replace({ name: 'PastoralBlogEdit', params: { id: draftId } })
+  hydrateFromPost(draftId)
+  isBootstrapping.value = false
+  isHydrated.value = true
+})
+
+watch(isPublished, async (shouldPublish, previous) => {
+  if (!isHydrated.value || !postId.value || shouldPublish === previous || isPublishing.value) {
+    return
+  }
+
+  isPublishing.value = true
+  await store.setPublished(postId.value, shouldPublish)
+  isPublishing.value = false
+})
+
+const saveStatusLabel = computed(() => {
+  if (store.autosaveStatus === 'saving') return 'Saving...'
+  if (store.autosaveStatus === 'error') return 'Save failed — retrying on next edit'
+  if (store.lastSavedAt) return `Saved ${moment(store.lastSavedAt).fromNow()}`
+  return 'All changes saved'
+})
+
+const saveStatusClass = computed(() => {
+  if (store.autosaveStatus === 'error') {
+    return 'text-red-500 dark:text-red-400'
+  }
+  if (store.autosaveStatus === 'saving') {
+    return 'text-surface-400 dark:text-surface-500'
+  }
+  return 'text-surface-500 dark:text-surface-400'
 })
 
 const onUpload = (info: { public_id: string; secure_url: string }) => {
@@ -51,105 +124,81 @@ const onRemoveCover = () => {
   coverImageUrl.value = null
 }
 
-const isSaveDisabled = computed(
-  () => !title.value.trim() || !content.value || content.value === '{"ops":[{"insert":"\\n"}]}',
-)
-
-const onSave = async () => {
-  const payload = {
-    title: title.value.trim(),
-    content: content.value,
-    coverImageUrl: coverImageUrl.value,
-    coverImagePublicId: coverImagePublicId.value,
-  }
-
-  let success = false
-
-  if (isEditing.value && props.id) {
-    success = await store.updatePost(props.id, payload)
-    if (success && store.posts.find((p) => p.id === props.id)?.is_published !== isPublished.value) {
-      await store.setPublished(props.id, isPublished.value)
-    }
-  } else {
-    success = await store.createPost(payload)
-    if (success && isPublished.value) {
-      const newest = store.posts[0]
-      if (newest) await store.setPublished(newest.id, true)
-    }
-  }
-
-  if (success) {
-    router.push({ name: 'PastoralBlog' })
-  }
+const onBack = () => {
+  router.push({ name: 'PastoralBlog' })
 }
 
-const onCancel = () => {
-  router.push({ name: 'PastoralBlog' })
+const onTitleFocus = (event: FocusEvent) => {
+  const input = event.target as HTMLInputElement
+  if (title.value.trim() === 'Untitled') {
+    input.select()
+  }
 }
 </script>
 
 <template>
-  <PageWrapper show-toolbar :title="pageTitle" class="flex flex-col overflow-hidden">
-
-    <!-- Action bar: sits between the main toolbar and the editor -->
-    <div class="flex items-center justify-between py-2 border-b border-surface-200 dark:border-surface-700 shrink-0">
+  <PageWrapper show-toolbar title="Pastoral Blog" class="flex flex-col overflow-hidden">
+    <div
+      class="flex items-center justify-between gap-4 py-2 border-b border-surface-200 dark:border-surface-700 shrink-0"
+    >
       <Button
-        label="Back"
+        label="All posts"
         icon="pi pi-arrow-left"
         severity="secondary"
         text
         size="small"
-        @click="onCancel"
+        @click="onBack"
       />
-      <div class="flex items-center gap-4">
-        <div class="flex items-center gap-2">
-          <ToggleSwitch v-model="isPublished" input-id="publish-toggle" />
+
+      <div class="flex items-center gap-4 min-w-0">
+        <div class="hidden sm:flex items-center gap-2 min-w-0" :class="saveStatusClass">
+          <i
+            class="text-xs shrink-0"
+            :class="store.autosaveStatus === 'saving' ? 'pi pi-spin pi-spinner' : 'pi pi-cloud'"
+          />
+          <span class="text-sm truncate">{{ saveStatusLabel }}</span>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <ToggleSwitch
+            v-model="isPublished"
+            input-id="publish-toggle"
+            :disabled="isBootstrapping || isPublishing"
+          />
           <label
             for="publish-toggle"
             class="text-sm font-medium cursor-pointer select-none"
-            :class="isPublished
-              ? 'text-emerald-600 dark:text-emerald-400'
-              : 'text-surface-400 dark:text-surface-500'"
+            :class="
+              isPublished
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : 'text-surface-400 dark:text-surface-500'
+            "
           >
             {{ isPublished ? 'Published' : 'Draft' }}
           </label>
         </div>
-        <Button
-          label="Save"
-          icon="pi pi-check"
-          size="small"
-          :loading="store.actionStatus === Status.LOADING"
-          :disabled="isSaveDisabled"
-          @click="onSave"
-        />
       </div>
     </div>
 
-    <!-- Scrollable editor area -->
-    <div class="flex-1 overflow-y-auto">
-      <div class="max-w-2xl mx-auto w-full px-4 py-10 flex flex-col gap-6">
+    <div v-if="isBootstrapping" class="flex-1 flex items-center justify-center">
+      <ProgressSpinner style="width: 2.5rem; height: 2.5rem" />
+    </div>
 
-        <!-- Title: large, borderless -->
-        <InputText
-          v-model="title"
-          placeholder="Post title..."
-          class="editor-title-input w-full"
-          :pt="{
-            root: { class: 'border-none shadow-none bg-transparent !text-3xl !font-bold !p-0 !rounded-none placeholder:text-surface-300 dark:placeholder:text-surface-600' }
-          }"
-        />
-
-        <!-- Cover image: inline, subtle -->
-        <div v-if="coverImagePublicId" class="cover-image-frame relative rounded-xl overflow-hidden shadow-md">
+    <div v-else class="flex-1 overflow-y-auto notion-editor-scroll">
+      <div class="max-w-3xl mx-auto w-full px-6 py-8 md:py-12 flex flex-col gap-8">
+        <div v-if="coverImagePublicId" class="cover-image-frame relative rounded-2xl overflow-hidden group">
           <LwpImage
             :public-id="coverImagePublicId"
-            :width="800"
-            :height="300"
-            class-name="w-full h-full"
+            :width="1200"
+            :height="420"
+            class-name="w-full h-full object-cover"
           />
-          <div class="absolute top-3 right-3 z-10">
+          <div
+            class="absolute inset-0 bg-surface-950/0 group-hover:bg-surface-950/20 transition-colors"
+          />
+          <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
-              label="Remove image"
+              label="Remove cover"
               icon="pi pi-trash"
               size="small"
               severity="contrast"
@@ -159,114 +208,112 @@ const onCancel = () => {
             />
           </div>
         </div>
-        <div v-else>
-          <LwpImageUploader label="Add cover image" @uploaded="onUpload" class="cover-uploader" />
+
+        <div v-else class="flex items-center">
+          <LwpImageUploader label="Add cover" @uploaded="onUpload" class="cover-uploader" />
         </div>
 
-        <!-- Divider before editor -->
-        <div class="border-t border-surface-100 dark:border-surface-800" />
+        <input
+          v-model="title"
+          type="text"
+          placeholder="Untitled"
+          class="notion-title-input"
+          @focus="onTitleFocus"
+        />
 
-        <!-- Quill editor: seamless -->
-        <div class="seamless-editor">
-          <LwpQuillEditor
-            v-model="content"
-            placeholder="Write your post here..."
-          />
-        </div>
-
+        <LwpQuillEditor
+          v-model="content"
+          variant="notion"
+          placeholder="Start writing, or select text for formatting..."
+        />
       </div>
     </div>
-
   </PageWrapper>
 </template>
 
 <style scoped>
-/* Borderless title input */
-.editor-title-input :deep(input) {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  font-size: 1.875rem;
-  font-weight: 700;
-  padding: 0;
-  border-radius: 0;
-  color: inherit;
-  outline: none;
+.notion-editor-scroll {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--p-surface-50) 70%, transparent),
+      transparent 12rem
+    ),
+    var(--p-surface-0);
+}
+
+.dark .notion-editor-scroll {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--p-surface-900) 80%, transparent),
+      transparent 12rem
+    ),
+    var(--p-surface-950, var(--p-surface-900));
+}
+
+.notion-title-input {
   width: 100%;
-}
-
-.editor-title-input :deep(input):focus {
-  box-shadow: none;
   border: none;
   outline: none;
-}
-
-/* Seamless Quill editor: remove all box chrome */
-.seamless-editor :deep(.lwp-quill-editor) {
-  display: flex;
-  flex-direction: column;
-}
-
-.seamless-editor :deep(.ql-toolbar) {
   background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--p-surface-200);
-  padding: 0 0 0.5rem 0;
+  font-size: clamp(2.25rem, 5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--p-surface-900);
+  padding: 0;
 }
 
-.dark .seamless-editor :deep(.ql-toolbar) {
-  border-bottom-color: var(--p-surface-700);
+.dark .notion-title-input {
+  color: var(--p-surface-0);
 }
 
-.seamless-editor :deep(.ql-container) {
-  border: none;
-  background: transparent;
-  font-size: 1.0625rem;
-  min-height: 40vh;
+.notion-title-input::placeholder {
+  color: var(--p-surface-300);
 }
 
-.seamless-editor :deep(.ql-editor) {
-  padding: 1rem 0 0 0;
-  min-height: 40vh;
-  line-height: 1.8;
+.dark .notion-title-input::placeholder {
+  color: var(--p-surface-600);
 }
 
-/* Cover uploader: make it subtle, not a big blue button */
+.cover-image-frame {
+  height: 14rem;
+}
+
+@media (min-width: 768px) {
+  .cover-image-frame {
+    height: 18rem;
+  }
+}
+
 .cover-uploader :deep(button),
 .cover-uploader :deep(.p-button) {
   background: transparent !important;
-  border: 1px dashed var(--p-surface-300) !important;
+  border: none !important;
   color: var(--p-surface-400) !important;
   font-size: 0.875rem;
-  padding: 0.5rem 1rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem !important;
   width: auto !important;
-}
-
-.dark .cover-uploader :deep(button),
-.dark .cover-uploader :deep(.p-button) {
-  border-color: var(--p-surface-600) !important;
-  color: var(--p-surface-500) !important;
+  box-shadow: none !important;
 }
 
 .cover-uploader :deep(button):hover,
 .cover-uploader :deep(.p-button):hover {
   background: var(--p-surface-100) !important;
-  color: var(--p-surface-700) !important;
+  color: var(--p-surface-600) !important;
+}
+
+.dark .cover-uploader :deep(button),
+.dark .cover-uploader :deep(.p-button) {
+  color: var(--p-surface-500) !important;
 }
 
 .dark .cover-uploader :deep(button):hover,
 .dark .cover-uploader :deep(.p-button):hover {
   background: var(--p-surface-800) !important;
   color: var(--p-surface-300) !important;
-}
-
-.cover-image-frame {
-  height: 13rem;
-}
-
-.cover-image-frame :deep(.relative) {
-  width: 100%;
-  height: 100%;
 }
 
 .cover-remove-button {

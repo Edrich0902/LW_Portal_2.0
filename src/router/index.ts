@@ -167,13 +167,6 @@ const router = createRouter({
       meta: handleMeta(true, true, 'Pastoral Blog'),
     },
     {
-      path: '/pastoral-blog/:id',
-      name: 'PastoralBlogRead',
-      component: PastoralBlogReadView,
-      props: true,
-      meta: handleMeta(true, true, 'View Post'),
-    },
-    {
       path: '/pastoral-blog/new',
       name: 'PastoralBlogNew',
       component: PastoralBlogEditView,
@@ -185,6 +178,13 @@ const router = createRouter({
       component: PastoralBlogEditView,
       props: true,
       meta: handleMeta(true, true, 'Edit Post'),
+    },
+    {
+      path: '/pastoral-blog/:id',
+      name: 'PastoralBlogRead',
+      component: PastoralBlogReadView,
+      props: true,
+      meta: handleMeta(true, true, 'View Post'),
     },
   ],
 })
