@@ -1,56 +1,95 @@
-# Repository Guidelines
+# LW Portal 2.0 — Agent Guide
 
-## Project Structure & Module Organization
-`src/` contains the application code. Use `src/views/` for route-level pages, `src/components/` for reusable UI, `src/stores/` for Pinia state, and `src/services/` for Supabase or other external calls. Keep the data flow `view -> store -> service`; views should not call services directly. Shared clients live in `src/lib/`, global styles and images in `src/assets/`, and TypeScript models in `src/types/`. Static files belong in `public/`.
+Vue 3 + TypeScript admin portal for Lewende Woord Paarl. Platform context: see `../AGENTS.md`. Roadmap: `../roadmap.md`.
 
-## Build, Test, and Development Commands
-Install dependencies with `npm install`.
+**Stack:** Vite 6, Pinia 3, PrimeVue 4 (Aura), Tailwind CSS 4, Supabase, Cloudinary.
 
-- `npm run dev` starts the Vite dev server in development mode.
-- `npm run build` runs `vue-tsc` and a production build.
-- `npm run stage` builds with staging settings.
-- `npm run prod` builds with production settings.
-- `npm run preview` serves the built app locally.
-- `npm run lint` runs Oxlint and ESLint with auto-fixes.
-- `npm run format` applies Prettier to `src/`.
+## Project Structure
 
-## Coding Style & Naming Conventions
-Use TypeScript and Vue 3 with `<script setup lang="ts">`. Follow `.editorconfig`: 2-space indentation, LF endings, UTF-8, and a 100-character line width. Prettier enforces `singleQuote: true` and no semicolons. Name reusable components with the `Lwp` prefix, for example `LwpAvatar.vue`. Keep stores in feature folders such as `src/stores/events/events.store.ts`, and mirror that pattern for services and types. Prefer configured aliases like `@stores` and `@services` over long relative imports.
+- `src/views/` — route-level pages
+- `src/components/` — reusable UI (`Lwp*` prefix, auto-imported)
+- `src/stores/` — Pinia state
+- `src/services/` — Supabase / external API calls (no state)
+- `src/lib/` — Supabase and Cloudinary clients
+- `src/types/` — TypeScript models by entity
 
-## Component-First Rule
-Before writing raw HTML elements (`<img>`, `<div>`, `<span>`) to implement a UI pattern, always check whether PrimeVue or an existing `Lwp*` project component already covers it. Examples: use PrimeVue `Avatar` (with `LwpImage` in its slot for Cloudinary-backed images) instead of a raw `<img>` + `<div>` avatar combo; use `LwpImage` for any Cloudinary-backed image instead of a plain `<img src="...">`. Only fall back to raw HTML when no existing component fits.
+**Data flow:** `view → store → service → Supabase`. Views must not call services directly.
 
-## Testing Guidelines
-There is currently no automated test suite in this repository. Before opening a PR, run `npm run type-check`, `npm run lint`, and the relevant build command. When adding tests later, place them near the feature or under a dedicated `tests/` directory and name them after the target module, for example `events.store.spec.ts`.
+## Commands
 
-## Commit & Pull Request Guidelines
-Recent history uses lowercase prefixes such as `feature:` and `bugfix:` followed by a short summary, for example `feature: implement auth changes`. Keep commits focused and descriptive. PRs should include a concise summary, linked issue or ticket when available, screenshots for UI changes, and notes about environment or schema updates.
+```bash
+npm install
+npm run dev          # Vite dev server
+npm run stage        # build to dist/stage
+npm run prod         # build to dist/prod
+npm run type-check   # vue-tsc
+npm run lint         # Oxlint + ESLint (auto-fix)
+npm run format       # Prettier on src/
+```
 
-## Security & Configuration Tips
-Copy `.env.example` into the environment file you need and fill in Supabase and Cloudinary keys. Do not commit secrets. Preserve the `esnext` build target in `vite.config.ts`; `src/main.ts` relies on top-level `await` during auth initialization.
+## Authentication
 
-## Roadmap Sync Rule
-Always keep `LW_Portal_2.0/roadmap.md` and `LW_App/Roadmap.md` in sync when adding new features, reprioritizing work, or marking features complete.
+- `auth.store.ts` exposes `initialise()` — called in `main.ts` with top-level await before mount
+- Route guards use `meta.authed`
+- Only `SUPER_ADMIN` users can access the portal (enforced at auth layer)
 
-## Shared Platform Context
-- Groups 2.0 is already in progress across the shared Supabase backend, this portal repo, and `LW_App`.
-- Supabase SQL lives in the sibling `lwp/supabase/migrations` directory, not inside this repo.
-- Current group backend contract already includes:
-  - `group_memberships`
-  - `groups_public_view`
-  - `groups_admin_view`
-  - `group_memberships_view`
-  - group join/approve/decline/leave/remove/leader RPCs
-- Group feed backend is also now implemented in Supabase with:
-  - `group_posts`
-  - `group_post_reactions`
-  - `group_posts_view`
-  - post/reaction RPCs
-- The mobile feed handoff reference lives at `LW_App/docs/groups-feed-handoff.md`.
+**CRITICAL:** `vite.config.ts` must keep `build.target: 'esnext'` for top-level await in `main.ts`.
 
-## Group Implementation Notes
-- Portal group management was intentionally moved out of the modal into a dedicated management screen.
-- The Connect & Serve modal should remain focused on create/edit/delete only.
-- Group deletion is safe because membership rows cascade on delete via the backend schema.
-- A prior permissions bug came from using `security_invoker = on` on views that joined `auth.users`; the fix was to recreate those views without `security_invoker` in the follow-up Supabase migration.
-- Mobile group feed is full-screen, not embedded inside the group detail page. If portal moderation is added later, preserve that mobile-first feed design.
+## Coding Conventions
+
+- `<script setup lang="ts">` in all Vue components
+- No `any` — types belong in `src/types/`
+- Path aliases: `@`, `@views`, `@components`, `@stores`, `@services`, `@lib`
+- Every async operation needs loading + error states (`Status` enum, `ProgressSpinner`/skeleton, `Toast`/`Message`)
+- Services return `SupabaseResponse<T>`
+
+### Component-first rule
+
+Before raw HTML (`<img>`, `<div>`, `<span>`), check PrimeVue or existing `Lwp*` components:
+
+- Cloudinary images → `LwpImage`
+- Avatars → PrimeVue `Avatar` with `LwpImage` in slot, or initials fallback
+- Read-only Quill → `LwpQuillViewer`
+- Tables → global-themed `DataTable`; loading → `LwpSkeletonTable`; empty → `LwpEmptyState`
+
+## Tailwind CSS
+
+Never append `!important` after `@apply` — use per-class `!` prefix: `@apply !p-4 !text-lg`.
+Variant + important: `dark:!bg-surface-900`, `focus:!ring-primary-500`.
+Global PrimeVue overrides live in `src/assets/main.css` under `@layer components` — do not restyle shared components per-view.
+
+## Design System
+
+- Brand colour: `primary` = Tailwind `sky` — use on interactive/active states, not large flat fills
+- Card panels: `rounded-xl border border-surface-200 dark:border-surface-700 shadow-sm bg-surface-0 dark:bg-surface-900 p-4`
+- Calendar (`LwpEventCalendar.vue`) uses its own `<style>` block (FullCalendar) but follows the same language
+
+## Environment
+
+Copy `.env.example` → `.env.development` / `.env.staging` / `.env.production`:
+
+```
+VITE_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY
+VITE_CLOUDINARY_CLOUD_NAME
+VITE_CLOUDINARY_API_KEY
+VITE_CLOUDINARY_UPLOAD_PRESET
+```
+
+## Groups & Feed
+
+Full contract and UX decisions: `../LW_App/docs/groups-feed-handoff.md`.
+
+Key portal rules:
+
+- Connect & Serve CRUD modal: create/edit/delete only — member management lives on the dedicated manage screen (`/connect-serve/:id/manage`)
+- Manage screen has **Members** and **Feed** tabs; portal moderates feed, does not author
+- Group deletion relies on backend cascade for memberships
+
+## Events
+
+Non-obvious calendar/RSVP behaviour: `docs/events.md`.
+
+## Testing
+
+No automated test suite yet. Before PR: `npm run type-check`, `npm run lint`, relevant build command.
